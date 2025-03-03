@@ -1,13 +1,13 @@
 body {
-    background-color: rgb(37, 37, 37);
-    color: rgb(226, 226, 226);
-    font-family: "Montserrat", sans-serif;
-    font-weight: 400;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
+  background-color: rgb(37, 37, 37);
+  color: rgb(226, 226, 226);
+  font-family: "Montserrat", sans-serif;
+  font-weight: 400;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 /*
 header {
@@ -17,110 +17,167 @@ header {
 }
     */
 
-button, input[type="submit"], input[type="file"]::file-selector-button{
-    font-family: "Montserrat", sans-serif;
-    font-weight: 600;
-    color: rgb(226, 226, 226);
-    background: none;
-    border: none;
-    border-radius: 1rem;
-    padding: 0.5rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    background-color: rgb(53, 53, 53);
-    transition: transform 0.3s ease, background-color 0.5s;
+button,
+input[type="submit"],
+input[type="file"]::file-selector-button {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  color: rgb(226, 226, 226);
+  background: none;
+  border: none;
+  border-radius: 1rem;
+  padding: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  background-color: rgb(53, 53, 53);
+  transition: transform 0.3s ease, background-color 0.5s;
 }
 
-button:hover, input[type="submit"]:hover, input[type="file"]::file-selector-button:hover {
-    transform: scale(0.95);
-    cursor: pointer;
-    background-color: #34ACFC;
+button:hover,
+input[type="submit"]:hover,
+input[type="file"]::file-selector-button:hover {
+  transform: scale(0.95);
+  cursor: pointer;
+  background-color: #34acfc;
 }
 
-input, textarea {
-    background-color: rgb(53, 53, 53);
-    font-family: "Montserrat", sans-serif;
-    font-weight: 400;
-    color: rgb(226, 226, 226);
-    border: none;
-    border-radius: 1rem;
-    padding: 0.5rem;
+input,
+textarea {
+  background-color: rgb(53, 53, 53);
+  font-family: "Montserrat", sans-serif;
+  font-weight: 400;
+  color: rgb(226, 226, 226);
+  border: none;
+  border-radius: 1rem;
+  padding: 0.5rem;
 }
 
 textarea {
-    background-color: rgb(37, 37, 37);
-    padding: 2rem;
-    width: 100%;
-    height: auto; /* Permet au textarea de s'ajuster en hauteur */
-    min-height: 100px; /* Hauteur minimale */
-    box-sizing: border-box; /* Inclut le padding dans la largeur totale */
+  background-color: rgb(37, 37, 37);
+  padding: 2rem;
+  width: 100%;
+  height: auto; /* Permet au textarea de s'ajuster en hauteur */
+  min-height: 100px; /* Hauteur minimale */
+  box-sizing: border-box; /* Inclut le padding dans la largeur totale */
 }
 
 .post {
-    padding: 2rem;
-    width: 70%;
-    background-color: rgb(37, 37, 37);
-    text-align: justify;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    margin-top: 3rem;
+  padding: 2rem;
+  width: 70%;
+  background-color: rgb(37, 37, 37);
+  text-align: justify;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  margin-top: 3rem;
 }
 
 .username {
-    color: #34ACFC;
-    font-weight: 700;
-    text-align: left;
+  color: #34acfc;
+  font-weight: 700;
+  text-align: left;
 }
 
 .nav {
-    width: 70%;
+  width: 70%;
 }
 
 .nav td {
-    white-space: nowrap; /* Empêche le retour à la ligne */
+  white-space: nowrap; /* Empêche le retour à la ligne */
 }
 
 .navstick {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    position: sticky;
-    top: 0;
-    background-color: rgb(37, 37, 37);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  background-color: rgb(37, 37, 37);
 }
 
 .spacer {
-    width: 100%;
+  width: 100%;
 }
 
 .post td {
-    /* border: 1px dashed; */
-    padding: 0.5rem;
+  /* border: 1px dashed; */
+  padding: 0.5rem;
 }
 
 .postcontent {
-    background-color: rgba(53, 53, 53, 0.4);
-    border: none;
-    border-radius: 1rem;
-    font-style: italic;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background-color: rgba(53, 53, 53, 0.4);
+  border: none;
+  border-radius: 1rem;
+  font-style: italic;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .likesbuttons {
-    min-width: 125px;
-    text-align: right;
+  min-width: 125px;
+  text-align: right;
 }
 
 .posttitle {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .written {
-    font-size: 0.8rem;
+  font-size: 0.8rem;
 }
 
 .single-post {
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-    border-radius: 10px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+/*Chat-Message*/
+
+.unfold {
+  position: fixed;
+  top: 150px;
+  left: 0px;
+  background-color: rgb(0, 170, 226);
+  border-radius: 1rem;
+  padding: 0.5rem;
+  margin-top: 1rem;
+  height: 100%;
+  width: 14%;
+}
+
+.first-line {
+  display: flex; /* Active le mode flexbox */
+  align-items: center; /* Centre verticalement */
+  justify-content: flex-start; /* Garde les éléments en ligne à gauche */
+  gap: 35px; /* Ajoute un espace entre les éléments */
+  padding: 10px;
+  background: #0c0c0c;
+  border-bottom: 1px solid #ccc;
+}
+
+#title {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+#status-members {
+  color: gray;
+  font-size: 14px;
+}
+
+#item {
+  margin-left: 20px;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 5px;
+  fill: white;
+}
+
+.fold {
+  position: fixed;
+  top: 150px;
+  left: 0px;
+  background-color: rgb(0, 170, 226);
+  height: 15px;
+  width: 13%;
+  border-radius: 5px;
 }
