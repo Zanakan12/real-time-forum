@@ -325,6 +325,7 @@ func UserSelectLoginOAuth(email string) (User, error) {
 
 	// Récupérer l'utilisateur de la base de données
 	var user User
+	
 	querySQL := `SELECT id, username, role FROM users WHERE email = ?`
 	err = db.QueryRow(querySQL, email).Scan(&user.ID, &user.Username, &user.Role)
 	if err != nil {

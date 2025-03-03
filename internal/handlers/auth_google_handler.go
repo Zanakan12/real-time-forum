@@ -8,6 +8,7 @@ import (
 	"middlewares"
 	"net/http"
 	"os"
+	"strings"
 
 	"golang.org/x/oauth2"
 )
@@ -50,7 +51,7 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	client := googleOauthConfig.Client(r.Context(), token)
 	response, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
-		http.Error(w, "Échec de la récupération des informations utilisateur: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Échec de la récupération des informations utilisateur : "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer response.Body.Close()
@@ -78,15 +79,17 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	if logOAuthErr != nil {
 		log.Printf("Utilisateur non trouvé, création d'un nouveau compte pour: %s", email)
 		username, ok := user["name"].(string)
-		if !ok {
-			username = email // Use email as username if name is not available
+		if !ok { // Use email as username if name is not available
+			username = email[:strings.Index(email, "@")] // Remove domain from email
 		}
+
 		err := db.UserInsertRegisterOAuth(email, username, "user")
 		if err != nil {
 			log.Printf("Erreur lors de la création de l'utilisateur: %v", err)
 			http.Error(w, "Échec de la création de l'utilisateur: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
+		
 		authUser, err = db.UserSelectLoginOAuth(email)
 		if err != nil {
 			log.Printf("Erreur lors de la récupération de l'utilisateur après création: %v", err)
