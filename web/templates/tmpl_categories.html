@@ -1,0 +1,15 @@
+{{define "categories"}}
+<!-- <form action="/emoji-choosed" method="post"> -->
+        <tr>
+            {{range .Moods}} <!-- Loop through the moods slice -->
+            <td>
+                <label>
+                    <input type="checkbox" name="moods" id="moods" value="{{.ID}}">
+                    <span class="mood">{{.Name}}</span>
+                </label>
+            </td>
+            {{end}}
+            <!-- <td><button type="submit">Submit</button></td> -->
+        </tr>
+<!-- </form> -->
+{{end}}

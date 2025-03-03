@@ -1,0 +1,98 @@
+{{define "lastposts"}}
+<script>
+    function autoResize(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('textarea[id^="textarea-"]').forEach(function(textarea) {
+            autoResize(textarea);
+            textarea.addEventListener('input', function() {
+                autoResize(this);
+            });
+        });
+    });
+    </script>
+{{range .MostRecentPosts}}
+<table class="post">
+    <tr>
+        <td class="posttitle" >{{.Title}}</td>
+        <td class="username">{{.User.Username}}</td>
+        <td>
+            {{range .Categories}}
+                <span>{{.Name}}</span>
+            {{end}}
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3" class="written" style="font-style: italic; padding-bottom: 1.3rem;">Written at {{.CreatedAt}}</td>
+    </tr>
+    <tr>
+        <td colspan="3" class="postcontent" style="padding: 1.5rem;">
+            {{if eq $.UserID .UserID}} <!-- Vérifie si l'utilisateur est le propriétaire du post -->
+                <form action="/post-update-validation" method="post">
+                    <input type="hidden" name="post_id" value="{{.ID}}">
+                    <textarea id="textarea-{{.ID}}" name="content" rows="" cols="">{{.Body}}</textarea> <!-- Champ pour modifier le post -->
+                    <button type="submit">✏️</button> <!-- Bouton pour soumettre la modification -->
+                </form>
+            {{else}}
+                {{.Body}} <!-- Afficher le corps du post normalement -->
+            {{end}}
+        </td>
+    </tr>
+    {{if .ImagePath}} <!-- Vérifier si une image est présente -->
+    <tr>
+        <td colspan="3" style="text-align: center; padding-top: 2rem;">
+            <img src="{{.ImagePath}}" alt="Post Image" style="max-width: 500px; height: auto;" /> <!-- Affichage de l'image -->
+        </td>
+    </tr>
+    {{end}}
+    {{if or (eq $.UserRole "admin") (eq $.UserRole "moderator")}}
+    <tr>
+        <td colspan="3">{{template "posts_status" .}}</td>
+    </tr>
+    {{end}}
+    {{if or (eq $.UserID .UserID) (eq $.UserRole "moderator") (eq $.UserRole "admin")}}
+    <tr>
+        <td colspan="2"></td>
+        <td style="text-align: right;">
+            <form action="/post-delete-validation" method="post" style="display: inline;">
+                <input type="hidden" name="post_id" value="{{.ID}}">
+                <button type="submit">🗑️</button>
+            </form>
+        </td>
+    </tr>
+    {{end}}
+    {{template "likesdislikes" .}}
+    {{if ne $.UserRole "traveler"}}
+        {{template "newcomment" .}}
+    {{else}}
+        <tr>
+            <td colspan="3">Please register to comment this post.</td>
+        </tr>
+    {{end}}
+    {{range .Comments}}
+    <tr>
+        <td class="username">{{.Username}}</td>
+        {{if eq $.UserID .UserID}} <!-- Vérifie si l'utilisateur est le propriétaire du post -->
+        <td colspan="2" >
+            <form  action="/comment-update-validation" method="post">
+            <input type="hidden" name="comment_id" value="{{.ID}}">
+            <textarea id="textarea-{{.ID}}" name="content" rows="" cols="">{{.Content}}</textarea>
+            <button type="submit">✏️</button>
+        </form>
+        <form action="/comment-delete-validation" method="post" style="text-align: right;">
+            <input type="hidden" name="comment_id" value="{{.ID}}">
+            <button type="submit">🗑️</button>
+        </form>
+        </td>
+            {{else}}
+                <td colspan="2">{{.Content}}</td> <!-- Afficher le corps du post normalement -->
+            {{end}}
+    </tr>
+    {{template "likesdislikescom" .}}
+    {{end}}
+    {{end}}
+</table>
+{{end}}

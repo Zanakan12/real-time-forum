@@ -1,0 +1,34 @@
+{{define "categories_manage"}}
+<h2>Manage Categories</h2> <!-- Title added -->
+<table border="1" cellpadding="5" cellspacing="0">
+    <tr>
+        <th>Emoji</th>
+        <th>Action</th> <!-- Column for the delete action -->
+    </tr>
+    {{range .Moods}}
+    <tr>
+        <td>
+            <span class="mood">{{.Name}}</span>
+        </td>
+        <td>
+            <!-- Delete link or button -->
+            <form action="/admin" method="post" style="display:inline;">
+                <input type="hidden" name="moodID" value="{{.ID}}">
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+    {{end}}
+    <td>
+        <!-- Textarea for emoji input -->
+        <form action="/admin" method="post" style="display:inline;">
+            <textarea id="emoji" name="emoji" rows="1.5" cols="4"></textarea>
+    </td>
+    <td>
+        <!-- Submit button in a separate column -->
+        <button type="submit">Add</button>
+        </form>
+    </td>
+</table>
+
+{{end}}

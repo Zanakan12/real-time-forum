@@ -1,0 +1,35 @@
+{{define "login"}}
+<form action="/login-validation" method="post">
+    <table class="post">
+        <tr>{{.Login.Error}}</tr>
+        <tr>
+            <td>{{.Login.Message}}</td>
+            <td style="display: flex; justify-content: space-between;">
+                <button onclick="window.location.href='/google-login'" style="background-color: rgb(37, 37, 37);">
+                    <img src="/static/assets/img/google_logo.png" alt="" style="height: 2em;">
+                </button>
+                <button onclick="window.location.href='/reddit-login'" style="background-color: rgb(37, 37, 37);">
+                    <img src="/static/assets/img/reddit_logo.png" alt="" style="height: 2em;">
+                </button>
+                <button onclick="window.location.href='/dis-login'" style="background-color: rgb(37, 37, 37);">
+                    <img src="/static/assets/img/discord-logo.png" alt="" style="height: 2em;">
+                </button>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="email">{{.Login.EmailLabel}}</label></td>
+            <td><input type="email" id="email" name="email" required></td>
+        </tr>
+
+        <tr>
+            <td><label for="password">{{.Login.PasswordLabel}}</label></td>
+            <td><input type="password" id="password" name="password" required></td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td style="text-align: right;"><input type="submit" value="Submit"></td>
+        </tr>
+    </table>
+</form>
+{{end}}

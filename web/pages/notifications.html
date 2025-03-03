@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="static/css/index.css">
+    <link rel="icon" href="/static/assets/img/4.png" type="image/x-icon">
+
+</head>
+<body>
+{{template "nav" .}}
+<table>
+    {{range .Comments}}
+    <tr>
+        <td><b>{{.Username}}</b> just <i>commented</i> your post: <i>{{.PostTitle}}</i></td>
+    </tr>
+    <tr>
+        <td>{{.Content}}</td>
+    </tr>
+    <tr>
+        <td><hr width="50%"></td>
+    </tr>
+{{end}}
+</table>
+<table>
+    {{range .LikesDislikes}}
+    <tr>
+        <td><b>{{.Username}}</b> just <i>{{if eq .IsLike true}}Liked{{else}}Disliked{{end}}</i> your post: <i>{{.PostTitle}}</i></td>
+    </tr>
+    <tr>
+        <td><hr width="50%"></td>
+    </tr>
+{{end}}
+</table>
+</body>
+</html>

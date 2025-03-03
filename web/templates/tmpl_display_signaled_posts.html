@@ -1,0 +1,53 @@
+{{define "posts_signaled_table"}}
+<body>
+    <h1>Posts with Non-standard Statuses</h1>
+    <table border="1" cellpadding="10" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Posts}}
+            <tr>
+                <td>{{.ID}}</td>
+                <td>{{.Title}}</td>
+
+                <!-- Form for updating status -->
+                <td>
+                    <form method="POST" action="/admin">
+                        <select name="status" id="id_status_{{.ID}}">
+                            <option value="published" {{if eq .Status "published"}}selected{{end}}>Published</option>
+                            <option value="draft" {{if eq .Status "draft"}}selected{{end}}>Draft</option>
+                            <option value="pending" {{if eq .Status "pending"}}selected{{end}}>Pending</option>
+                            <option value="irrelevant" {{if eq .Status "irrelevant"}}selected{{end}}>Irrelevant</option>
+                            <option value="obscene" {{if eq .Status "obscene"}}selected{{end}}>Obscene</option>
+                            <option value="illegal" {{if eq .Status "illegal"}}selected{{end}}>Illegal</option>
+                            <option value="insulting" {{if eq .Status "insulting"}}selected{{end}}>Insulting</option>
+                        </select>
+                        <input type="hidden" name="post_id" value="{{.ID}}">
+                        <input type="submit" value="Update">
+                    </form>                    
+                </td>
+
+                <!-- Form for deleting post -->
+                <td>
+                    <form method="POST" action="/admin">
+                        <input type="hidden" name="deletepost_id" value="{{.ID}}">
+                        <input type="submit" value="Delete">
+                    </form>
+                </td>
+            </tr>
+            {{else}}
+            <tr>
+                <td colspan="4">No posts found.</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</body>
+</html>
+{{end}}

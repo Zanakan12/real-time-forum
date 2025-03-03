@@ -1,0 +1,52 @@
+{{define "manage_users"}}
+<body>
+    <main>
+        <section>
+            <h2>User List</h2>
+            <table border="1" cellpadding="5" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .Users}}
+                    <tr>
+                        <td>{{.ID}}</td>
+                        <td>{{.Username}}</td>
+                        <td>{{.Email}}</td>
+                        <td>
+                            <form method="POST" action="/admin">
+                                <input type="hidden" name="user_id" value="{{.ID}}">
+                                <select name="role">
+                                    <option value="admin" {{if eq .Role "admin"}}selected{{end}}>Administrator</option>
+                                    <option value="moderator" {{if eq .Role "moderator"}}selected{{end}}>Moderator</option>
+                                    <option value="user" {{if eq .Role "user"}}selected{{end}}>User</option>
+                                    <option value="banned" {{if eq .Role "banned"}}selected{{end}}>Banned</option>
+                                </select>
+                                <button type="submit">Edit</button>
+                            </form>
+                        </td>
+                        <td>
+                            <!-- Form to delete user -->
+                            <form method="POST" action="/admin" style="display:inline;">
+                                <input type="hidden" name="delete_id" value="{{.ID}}">
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {{else}}
+                    <tr>
+                        <td colspan="5">No users found.</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </section>
+    </main>
+</body>
+{{end}}

@@ -1,0 +1,126 @@
+body {
+    background-color: rgb(37, 37, 37);
+    color: rgb(226, 226, 226);
+    font-family: "Montserrat", sans-serif;
+    font-weight: 400;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+/*
+header {
+    width: 80vw;
+    display: flex;
+    align-items: center;
+}
+    */
+
+button, input[type="submit"], input[type="file"]::file-selector-button{
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    color: rgb(226, 226, 226);
+    background: none;
+    border: none;
+    border-radius: 1rem;
+    padding: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    background-color: rgb(53, 53, 53);
+    transition: transform 0.3s ease, background-color 0.5s;
+}
+
+button:hover, input[type="submit"]:hover, input[type="file"]::file-selector-button:hover {
+    transform: scale(0.95);
+    cursor: pointer;
+    background-color: #34ACFC;
+}
+
+input, textarea {
+    background-color: rgb(53, 53, 53);
+    font-family: "Montserrat", sans-serif;
+    font-weight: 400;
+    color: rgb(226, 226, 226);
+    border: none;
+    border-radius: 1rem;
+    padding: 0.5rem;
+}
+
+textarea {
+    background-color: rgb(37, 37, 37);
+    padding: 2rem;
+    width: 100%;
+    height: auto; /* Permet au textarea de s'ajuster en hauteur */
+    min-height: 100px; /* Hauteur minimale */
+    box-sizing: border-box; /* Inclut le padding dans la largeur totale */
+}
+
+.post {
+    padding: 2rem;
+    width: 70%;
+    background-color: rgb(37, 37, 37);
+    text-align: justify;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    margin-top: 3rem;
+}
+
+.username {
+    color: #34ACFC;
+    font-weight: 700;
+    text-align: left;
+}
+
+.nav {
+    width: 70%;
+}
+
+.nav td {
+    white-space: nowrap; /* Empêche le retour à la ligne */
+}
+
+.navstick {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    background-color: rgb(37, 37, 37);
+}
+
+.spacer {
+    width: 100%;
+}
+
+.post td {
+    /* border: 1px dashed; */
+    padding: 0.5rem;
+}
+
+.postcontent {
+    background-color: rgba(53, 53, 53, 0.4);
+    border: none;
+    border-radius: 1rem;
+    font-style: italic;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.likesbuttons {
+    min-width: 125px;
+    text-align: right;
+}
+
+.posttitle {
+    font-weight: bold;
+}
+
+.written {
+    font-size: 0.8rem;
+}
+
+.single-post {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}

@@ -1,0 +1,27 @@
+# Binaires compilés
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Fichiers et dossiers spécifiques à macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Fichiers de l'IDE (ajustez selon votre IDE)
+.idea/
+*.swp
+*.swo
+.vscode/
+
+# Fichiers de log
+*.log
+
+# Fichiers d'environnement
+.env
+.env.local
+
+# Fichiers temporaires
+/tmp/

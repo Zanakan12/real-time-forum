@@ -1,0 +1,25 @@
+{{define "likesdislikes"}}
+<tr>
+    <td colspan="2">
+        <hr width="100%">
+    </td>
+    <td class="likesbuttons">
+        <form action="/likes-dislikes-validation" method="post" style="display: inline;">
+            <input type="hidden" name="post_id" value="{{.ID}}">
+            <input type="hidden" name="like_dislike" value="like">
+            <button type="submit" style="background: none; border: none; cursor: pointer;">
+                {{.LikesCount}}
+                <img src="/static/assets/img/like.png" alt="Like" style="width: 15px; vertical-align: middle;">
+            </button>
+        </form>
+        <form action="/likes-dislikes-validation" method="post" style="display: inline;">
+            <input type="hidden" name="post_id" value="{{.ID}}">
+            <input type="hidden" name="like_dislike" value="dislike">
+            <button type="submit" style="background: none; border: none; cursor: pointer;">
+                {{.DislikesCount}}
+                <img src="/static/assets/img/dislike.png" alt="Dislike" style="width: 15px; vertical-align: middle;">
+            </button>
+        </form>
+    </td>
+</tr>
+{{end}}

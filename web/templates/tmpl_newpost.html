@@ -1,0 +1,20 @@
+{{define "newpost"}}
+<form action="/post-validation" method="post" enctype="multipart/form-data">
+    <table>
+        {{.ErrorMsgs}}
+        {{template "categories" .}}
+        <tr>
+            <td colspan="4"><hr width="100%"></td>
+        </tr>
+        <tr>
+            <td><label for="body">Post content:</label></td>
+            <td colspan="2"><input id="body" name="body" type="text" required/></td>
+            <tr>
+                <td><label for="image">Select an image:</label></td>
+                <td colspan="2"><input id="image" name="image" type="file" accept="image/*"/></td>
+            </tr>
+            <td><input type="submit" value="Submit" /></td>
+        </tr>
+    </table>
+</form>
+{{end}}

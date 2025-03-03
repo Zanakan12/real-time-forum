@@ -1,0 +1,20 @@
+{{define "updateProfile"}}
+<h2>Update user name</h2>
+<form action="/update-name" method="POST">
+    <tr>
+        <td><label for="current_name">Current name :</label></td>
+        <td><input type="text" id="current_name" name="current_name" value="{{.Username}}" readonly /></td>
+    </tr>
+    <tr>
+        <td><label for="new_name">New name :</label></td>
+        <td><input id="new_name" name="new_name" required="" type="text" placeholder="Enter new name here" /></td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <input type="hidden" name="user_id" value="{{.UserID}}" />
+            <input type="submit" value="Update" />
+        </td>
+    </tr>
+</form>
+<a href="/profile">Cancel</a>
+{{end}}

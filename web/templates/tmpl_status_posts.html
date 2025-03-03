@@ -1,0 +1,27 @@
+{{define "posts_status"}}
+<form method="POST" action="/moderator">
+    <table>
+        <tr>
+            <!-- Label for Status -->
+            <td><label for="status">Status:</label></td>
+            <!-- Dropdown for Status Selection -->
+            <td>
+                <select id="status" name="status" required>
+                    <option value="published" {{if eq .Status "published"}}selected{{end}}>Published</option>
+                    <option value="draft" {{if eq .Status "draft"}}selected{{end}}>Draft</option>
+                    <option value="pending" {{if eq .Status "pending"}}selected{{end}}>Pending</option>
+                    <option value="irrelevant" {{if eq .Status "irrelevant"}}selected{{end}}>Irrelevant</option>
+                    <option value="obscene" {{if eq .Status "obscene"}}selected{{end}}>Obscene</option>
+                    <option value="illegal" {{if eq .Status "illegal"}}selected{{end}}>Illegal</option>
+                    <option value="insulting" {{if eq .Status "insulting"}}selected{{end}}>Insulting</option>
+                </select>
+            </td>
+            <!-- Submit Button -->
+            <td><input type="submit" value="Update"></td>
+        </tr>
+    </table>
+    <!-- Hidden input for the post ID -->
+    <input type="hidden" name="post_id" value="{{.ID}}">
+    <input type="hidden" name="title" value="{{.Title}}">
+</form>
+{{end}}

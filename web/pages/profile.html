@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="static/css/index.css">
+    <link rel="icon" href="/static/assets/img/4.png" type="image/x-icon">
+    <title>Profile</title>
+</head>
+
+<body>
+    {{template "nav" .}}
+    <h3>Welcome to your profile page {{.Username}}</h3>
+    {{if .Error}}
+    <p style="color: red;">{{.Error}}</p>
+    {{end}}
+    {{if .Success}}
+    <p style="color: green;">Name updated successfully!</p>
+    {{end}}
+
+    {{template "user_request" .}}
+
+    {{if .ShowUpdateForm}}
+    {{template "updateProfile" .}}
+    {{else}}
+    <a href="/profile?update=true" class="button">Update Profile</a>
+    {{end}}
+
+    {{template "lastposts" .}}
+</body>
+
+</html>
