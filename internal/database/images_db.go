@@ -50,7 +50,7 @@ func ImageInsert(postId, fileSize int, filePath string) error {
 		return fmt.Errorf("error starting transaction: %v", err)
 	}
 
-	encryptedFilePath, err := encryptData(filePath)
+	encryptedFilePath, err := EncryptData(filePath)
 	if err != nil {
 		return fmt.Errorf("error encrypting title: %v", err)
 	}

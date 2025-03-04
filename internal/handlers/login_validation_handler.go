@@ -25,6 +25,7 @@ func LoginValidationHandler(w http.ResponseWriter, r *http.Request) {
 	// Retrieve form data
 	email := strings.ToLower(r.FormValue("email"))
 	password := r.FormValue("password")
+	
 
 	// Call the database validation function
 	user, err := db.UserSelectLogin(email, password)

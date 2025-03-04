@@ -31,12 +31,12 @@ func PostInsert(userID int, title, body string, categories []int) (int, error) {
 		return 0, fmt.Errorf("erreur lors du démarrage de la transaction: %v", err)
 	}
 
-	encryptedTitle, err := encryptData(title)
+	encryptedTitle, err := EncryptData(title)
 	if err != nil {
 		return 0, fmt.Errorf("erreur lors du cryptage du titre: %v", err)
 	}
 
-	encryptedBody, err := encryptData(body)
+	encryptedBody, err := EncryptData(body)
 	if err != nil {
 		return 0, fmt.Errorf("erreur lors du cryptage du contenu: %v", err)
 	}
@@ -143,7 +143,7 @@ func PostUpdateContent(id int, body string) error {
 		return fmt.Errorf("error starting transaction: %v", err)
 	}
 
-	encryptedBody, err := encryptData(body)
+	encryptedBody, err := EncryptData(body)
 	if err != nil {
 		return fmt.Errorf("error decrypting body datas : %v", err)
 	}

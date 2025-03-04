@@ -12,8 +12,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// encryptData encrypts the given data using AES encryption
-func encryptData(data string) (string, error) {
+// EncryptData encrypts the given data using AES encryption
+func EncryptData(data string) (string, error) {
 	block, err := aes.NewCipher([]byte(os.Getenv("AES_KEY")))
 	if err != nil {
 		return "", err

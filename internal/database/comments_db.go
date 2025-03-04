@@ -32,7 +32,7 @@ func CommentInsert(userID int, postID int, content string) error {
 		return fmt.Errorf("error starting transaction: %v", err)
 	}
 
-	encryptedContent, err := encryptData(content)
+	encryptedContent, err := EncryptData(content)
 	if err != nil {
 		return fmt.Errorf("error encrypting content: %v", err)
 	}
@@ -158,7 +158,7 @@ func CommentUpdate(commentID int, userID int, postID int, content string) error 
 		return fmt.Errorf("error starting transaction: %v", err)
 	}
 
-	encryptedContent, err := encryptData(content)
+	encryptedContent, err := EncryptData(content)
 	if err != nil {
 		return fmt.Errorf("error encrypting content: %v", err)
 	}

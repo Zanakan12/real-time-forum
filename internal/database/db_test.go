@@ -92,11 +92,11 @@ func TestRegisterUser(t *testing.T) {
 	*/
 
 	// DATA ENCRYPTION:
-	encryptedEmail, err := encryptData(email)
+	encryptedEmail, err := EncryptData(email)
 	if err != nil {
 		t.Errorf("error encrypting email: %v", err)
 	}
-	encryptedUsername, err := encryptData(username)
+	encryptedUsername, err := EncryptData(username)
 	if err != nil {
 		t.Errorf("error encrypting username: %v", err)
 	}
@@ -145,7 +145,7 @@ func TestEncryptedImageData(t *testing.T) {
 	createdAt := time.Now().UTC()
 
 	// Encrypt file path
-	encryptedFilePath, err := encryptData(filePath)
+	encryptedFilePath, err := EncryptData(filePath)
 	if err != nil {
 		t.Fatalf("Error encrypting file path: %v", err)
 	}
@@ -237,7 +237,7 @@ func TestInsertImage(t *testing.T) {
 		t.Errorf("error starting transaction: %v", err)
 	}
 
-	encryptedFilePath, err := encryptData(filePath)
+	encryptedFilePath, err := EncryptData(filePath)
 	if err != nil {
 		t.Errorf("error encrypting title: %v", err)
 	}

@@ -22,72 +22,109 @@
     </div>
 
     <script>
-        let socket;
-        let username;
+        document.addEventListener("DOMContentLoaded", () => {
+            let socket;
+            let username;
+            let allUsers = [];
+            let connectedUser = []
+            setInterval(appendUsers, 1000)
 
-        async function fetchUsername() {
-            try {
-                const response = await fetch('https://localhost:8080/api/get-user');
-                const data = await response.json();
-                console.log("Utilisateur récupéré :", data);
-                if (data.username) {
-                    username = data.username;
-                    connectWebSocket();
-                } else {
-                    alert("Vous devez être connecté !");
+
+            function appendUsers() {
+                fetchUsers();
+                const users = document.getElementById("users")
+                if (!allUsers) return;
+
+                allUsers.forEach(item => {
+                    if (!connectedUser.includes(item)) {
+                        connectedUser.push(item)
+                        const li = document.createElement("li");
+                        li.textContent = item;
+                        users.appendChild(li);
+                    }
+
+                });
+            }
+
+            async function fetchUsers() {
+                try {
+                    const response = await fetch('https://localhost:8080/api/users');
+                    const data = await response.json();
+                    allUsers = JSON.parse(data);
+
+                    if (data.username) {
+                        username = data.username;
+                        connectWebSocket();
+                    }
+                } catch (error) {
+                    console.error("Erreur lors de la récupération de l'utilisateur :", error);
                     window.location.href = "/login";
                 }
-            } catch (error) {
-                console.error("Erreur lors de la récupération de l'utilisateur :", error);
-                window.location.href = "/login";
             }
-        }
 
-        function connectWebSocket() {
-            const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
-            socket = new WebSocket(protocol + window.location.host + "/ws");
-
-            socket.onopen = function () {
-                console.log("✅ Connexion WebSocket établie !");
-            };
-
-            socket.onmessage = function (event) {
-                const msg = JSON.parse(event.data);
-
-                if (msg.type === "user_list") {
-                    updateUserList(JSON.parse(msg.content));
-                } else {
-                    const li = document.createElement("li");
-                    li.textContent = msg.username + ": " + msg.content;
-                    document.getElementById("messages").appendChild(li);
+            async function fetchUsername() {
+                try {
+                    const response = await fetch('https://localhost:8080/api/get-user');
+                    const data = await response.json();
+                    console.log("Utilisateur récupéré :", data);
+                    if (data.username) {
+                        username = data.username;
+                        connectWebSocket();
+                    }
+                } catch (error) {
+                    console.error("Erreur lors de la récupération de l'utilisateur :", error);
+                    window.location.href = "/login";
                 }
-            };
-
-            socket.onclose = function () {
-                console.warn("⚠️ Connexion WebSocket fermée.");
-            };
-        }
-
-        function sendMessage() {
-            const message = document.getElementById("message").value;
-            if (message && socket.readyState === WebSocket.OPEN) {
-                socket.send(JSON.stringify({ type: "message", content: message }));
-                document.getElementById("message").value = "";
             }
-        }
 
-        function updateUserList(users) {
-            const usersList = document.getElementById("users");
-            usersList.innerHTML = "";
-            users.forEach(user => {
-                const li = document.createElement("li");
-                li.textContent = user;
-                usersList.appendChild(li);
-            });
-        }
-        console.log("🚀 - Page chargée !");
-        // Récupérer l'utilisateur connecté au chargement
-        fetchUsername();
+            function connectWebSocket() {
+                const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+                socket = new WebSocket(protocol + window.location.host + "/ws");
+
+                socket.onopen = function () {
+                    console.log("✅ Connexion WebSocket établie !");
+                };
+
+                socket.onmessage = function (event) {
+                    const msg = JSON.parse(event.data);
+
+                    if (msg.type === "user_list") {
+                        updateUserList(JSON.parse(msg.content));
+                    } else {
+                        const li = document.createElement("li");
+                        li.textContent = msg.username + ": " + msg.content;
+                        document.getElementById("messages").appendChild(li);
+                    }
+                };
+
+                socket.onclose = function () {
+                    console.warn("⚠️ Connexion WebSocket fermée.");
+                };
+            }
+
+            function sendMessage() {
+                const message = document.getElementById("message").value;
+                if (message && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({ type: "message", content: message }));
+                    document.getElementById("message").value = "";
+                }
+            }
+
+            function updateUserList(users) {
+                const usersList = document.getElementById("users");
+                usersList.innerHTML = "";
+                users.forEach(user => {
+                    const li = document.createElement("li");
+                    li.textContent = user;
+                    usersList.appendChild(li);
+                });
+            }
+            console.log("🚀 - Page chargée !");
+            // Récupérer l'utilisateur connecté au chargement
+            fetchUsername();
+            fetchUsers();
+            appendUsers();
+        });
     </script>
 </body>
 

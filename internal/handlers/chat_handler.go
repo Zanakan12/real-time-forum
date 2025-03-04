@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 
 	"db"
 	"middlewares"
@@ -29,17 +30,50 @@ var clients = make(map[*websocket.Conn]string) // Connexion → Username
 var broadcast = make(chan Message)
 var mutex = sync.Mutex{}
 
-// HandleWebSocket gère les connexions WebSocket
-func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
-	// Récupérer la session utilisateur
-	session := middlewares.GetCookie(w, r)
-	if session.Username == "traveler" {
-		fmt.Println("Refus de connexion WebSocket : Pas de session")
-		http.Error(w, "Non authentifié", http.StatusUnauthorized)
-		return
+func InitWebSocket() {
+	go func() {
+		for {
+			msg := <-broadcast
+			mutex.Lock()
+			for client := range clients {
+				err := client.WriteJSON(msg)
+				if err != nil {
+					fmt.Println("Erreur d'envoi WebSocket :", err)
+					client.Close()
+					delete(clients, client)
+				}
+			}
+			mutex.Unlock()
+		}
+	}()
+
+	// Vérification des inactifs
+	go CheckInactiveUsers()
+}
+
+func CheckInactiveUsers() {
+	for {
+		mutex.Lock()
+		for conn, username := range clients {
+			err := conn.WriteMessage(websocket.PingMessage, nil)
+			if err != nil {
+				// L'utilisateur ne répond pas, on le déconnecte
+				fmt.Println("Déconnexion pour inactivité :", username)
+				conn.Close()
+				delete(clients, conn)
+				broadcast <- Message{Type: "user_list", Content: GetUserListJSON()}
+			}
+		}
+		mutex.Unlock()
+		// Vérifie toutes les 30 secondes
+		time.Sleep(30 * time.Second)
 	}
+}
+
+func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
+	session := middlewares.GetCookie(w, r)
 	fmt.Println("Connexion WebSocket de :", session.Username)
-	// Déchiffrer le nom d'utilisateur
+
 	userName, err := db.DecryptData(session.Username)
 	if err != nil || userName == "" {
 		fmt.Println("Refus de connexion WebSocket : Session invalide")
@@ -47,45 +81,45 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Mise à niveau de la connexion HTTP en WebSocket
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		fmt.Println("Erreur WebSocket :", err)
 		return
 	}
-	defer conn.Close()
 
 	// Ajouter l'utilisateur à la liste des connectés
 	mutex.Lock()
 	clients[conn] = userName
 	mutex.Unlock()
 
-	// Notifier tous les utilisateurs
-	broadcast <- Message{Type: "user_list", Content: getUserList()}
+	// Notifier les autres utilisateurs
+	broadcast <- Message{Type: "user_list", Content: GetUserListJSON()}
+
+	// Nettoyage en cas de déconnexion
+	defer func() {
+		mutex.Lock()
+		delete(clients, conn)
+		mutex.Unlock()
+		broadcast <- Message{Type: "user_list", Content: GetUserListJSON()}
+		fmt.Println("Utilisateur déconnecté :", userName)
+		conn.Close()
+	}()
 
 	// Lire les messages entrants
 	for {
 		var msg Message
 		err := conn.ReadJSON(&msg)
 		if err != nil {
-			fmt.Println("Déconnexion de :", userName)
-
-			// Supprimer l'utilisateur de la liste
-			mutex.Lock()
-			delete(clients, conn)
-			mutex.Unlock()
-
-			// Notifier les autres utilisateurs
-			broadcast <- Message{Type: "user_list", Content: getUserList()}
-			break
+			fmt.Println("Erreur WebSocket ou déconnexion détectée pour :", userName)
+			break // Quitter la boucle et déclencher le `defer`
 		}
-		msg.Username = userName // Associer l'utilisateur au message
+		msg.Username = userName
 		broadcast <- msg
 	}
 }
 
-// getUserList génère une liste JSON des utilisateurs connectés
-func getUserList() string {
+// GetUserListJSON retourne la liste des utilisateurs connectés en JSON
+func GetUserListJSON() string {
 	mutex.Lock()
 	defer mutex.Unlock()
 	usernames := []string{}
@@ -94,14 +128,16 @@ func getUserList() string {
 			usernames = append(usernames, username)
 		}
 	}
+
 	usersJSON, _ := json.Marshal(usernames)
-	fmt.Println("Liste des utilisateurs connectés :", string(usersJSON))
+	fmt.Println(string(usersJSON))
 	return string(usersJSON)
 }
 
-func contains(words []string, target string) bool {
-	for _, word := range words {
-		if word == target {
+// contains vérifie si un username est déjà dans la liste
+func contains(slice []string, item string) bool {
+	for _, val := range slice {
+		if val == item {
 			return true
 		}
 	}
@@ -110,5 +146,5 @@ func contains(words []string, target string) bool {
 
 // ChatPageHandler sert la page de discussion instantanée
 func ChatPageHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "web/pages/chat.html") // Assurez-vous que chat.html est dans un dossier "static"
+	http.ServeFile(w, r, "web/pages/chat.html") // Assurez-vous que chat.html est bien placé
 }

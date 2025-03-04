@@ -11,8 +11,8 @@ import (
 func InitServer() {
 
 	// Create a new server instance with specified timeout settings and max header bytes
-	server := NewServer(":8080", "localhost.crt", "localhost.key", 10*time.Second, 10*time.Second, 30*time.Second, 2*time.Second, 1<<20) // 1 MB max header size           
-	                                                                                          // Start the broadcast messages goroutine
+	server := NewServer(":8080", "localhost.crt", "localhost.key", 10*time.Second, 10*time.Second, 30*time.Second, 2*time.Second, 1<<20) // 1 MB max header size
+	// Start the broadcast messages goroutine
 	middlewares.SetErrorHandlers(handlers.Err400Handler, handlers.Err500Handler)
 	// Add handlers for different routes
 	server.Handle("/", handlers.IndexHandler) // Root route
@@ -60,7 +60,7 @@ func InitServer() {
 	// Add websocket handler
 	http.HandleFunc("/ws", handlers.HandleWebSocket)
 	server.Handle("/api/get-user", handlers.GetUserHandler)
-
+	server.Handle("/api/users", handlers.GetUserListHandler)
 
 	// Start the server
 	if err := server.Start(); err != nil {

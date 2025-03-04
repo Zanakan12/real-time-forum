@@ -49,12 +49,12 @@ func UserInsertRegister(email, username, password, role string) error {
 		return fmt.Errorf("error hashing password: %v", err)
 	}
 
-	encryptedEmail, err := encryptData(email)
+	encryptedEmail, err := EncryptData(email)
 	if err != nil {
 		return fmt.Errorf("error encrypting email: %v", err)
 	}
 
-	encryptedUsername, err := encryptData(username)
+	encryptedUsername, err := EncryptData(username)
 	if err != nil {
 		return fmt.Errorf("error encrypting username: %v", err)
 	}
@@ -98,7 +98,7 @@ func UserSelectLogin(email, password string) (User, error) {
 
 	// Encrypt the email for lookup
 	/*
-		encryptedEmail, err := encryptData(email)
+		encryptedEmail, err := EncryptData(email)
 		if err != nil {
 			return User{}, fmt.Errorf("error encrypting email: %v", err)
 		}*/
@@ -210,7 +210,7 @@ func UserUpdateName(userID int, newName string) (string, error) {
 	}
 
 	// Chiffrer le nouveau nom
-	encryptedNewName, err := encryptData(newName)
+	encryptedNewName, err := EncryptData(newName)
 	if err != nil {
 		tx.Rollback()
 		return "", fmt.Errorf("error encrypting new name: %v", err)
@@ -315,6 +315,7 @@ func DeleteUser(userID int) error {
 
 // Discord/Google Login authentifie un utilisateur en vérifiant ses identifiants.
 func UserSelectLoginOAuth(email string) (User, error) {
+
 	db := SetupDatabase()
 	defer db.Close()
 
@@ -322,10 +323,19 @@ func UserSelectLoginOAuth(email string) (User, error) {
 	if err != nil {
 		return User{}, fmt.Errorf("error starting transaction: %v", err)
 	}
-
 	// Récupérer l'utilisateur de la base de données
 	var user User
-	
+
+	emails, _ := GetAllEmails()
+
+	for _, e := range emails {
+		aux, _ := DecryptData(e)
+
+		if aux == email {
+			email = e
+		}
+	}
+
 	querySQL := `SELECT id, username, role FROM users WHERE email = ?`
 	err = db.QueryRow(querySQL, email).Scan(&user.ID, &user.Username, &user.Role)
 	if err != nil {
@@ -339,7 +349,6 @@ func UserSelectLoginOAuth(email string) (User, error) {
 	if err = tx.Commit(); err != nil {
 		return User{}, fmt.Errorf("error committing transaction: %v", err)
 	}
-
 	return user, nil
 }
 
@@ -352,7 +361,7 @@ func UserInsertRegisterOAuth(email, username, role string) error {
 	if err != nil {
 		return fmt.Errorf("error starting transaction: %v", err)
 	}
-	encryptedUsername, err := encryptData(username)
+	encryptedUsername, err := EncryptData(username)
 	if err != nil {
 		return fmt.Errorf("error encrypting username: %v", err)
 	}
@@ -369,4 +378,32 @@ func UserInsertRegisterOAuth(email, username, role string) error {
 	}
 
 	return nil
+}
+
+func GetAllEmails() ([]string, error) {
+
+	db := SetupDatabase()
+	defer db.Close()
+
+	var emails []string
+
+	rows, err := db.Query("SELECT email FROM users")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var email string
+		if err := rows.Scan(&email); err != nil {
+			return nil, err
+		}
+		emails = append(emails, email)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return emails, nil
 }
