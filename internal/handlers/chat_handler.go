@@ -53,20 +53,25 @@ func InitWebSocket() {
 
 func CheckInactiveUsers() {
 	for {
+		time.Sleep(30 * time.Second)
+
 		mutex.Lock()
+		inactiveClients := []*websocket.Conn{}
+
 		for conn, username := range clients {
-			err := conn.WriteMessage(websocket.PingMessage, nil)
-			if err != nil {
-				// L'utilisateur ne répond pas, on le déconnecte
+			if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				fmt.Println("Déconnexion pour inactivité :", username)
-				conn.Close()
-				delete(clients, conn)
-				broadcast <- Message{Type: "user_list", Content: GetUserListJSON()}
+				inactiveClients = append(inactiveClients, conn)
 			}
 		}
+
+		for _, conn := range inactiveClients {
+			delete(clients, conn)
+			conn.Close()
+		}
+
+		broadcast <- Message{Type: "user_list", Content: GetUserListJSON()}
 		mutex.Unlock()
-		// Vérifie toutes les 30 secondes
-		time.Sleep(30 * time.Second)
 	}
 }
 
