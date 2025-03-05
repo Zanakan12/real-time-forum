@@ -35,6 +35,7 @@ func SetupDatabase() *sql.DB {
 	createNotificationsTable(db)
 	createRequestsTable(db)
 	createRequestToAdminTable(db)
+	createMessagesTable(db)
 	return db
 }
 

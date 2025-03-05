@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"db"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -11,11 +12,14 @@ import (
 // GetUserHandler retourne l'utilisateur connecté
 func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	session := middlewares.GetCookie(w, r)
-
+	userName, err := db.DecryptData(session.Username)
+	if err != nil {
+		fmt.Println("Erreur lors du décryptage de l'user")
+	}
 	user := struct {
 		Username string `json:"username"`
 	}{
-		Username: session.Username,
+		Username: userName,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -38,4 +42,14 @@ func GetUserListHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Erreur lors de la génération du JSON", http.StatusInternalServerError)
 		fmt.Println("Erreur JSON:", err)
 	}
+}
+
+func GetChatHistory(w http.ResponseWriter, r *http.Request) {
+	messages, err := db.GetMessages()
+	if err != nil {
+		http.Error(w, "Erreur lors de la récupération des messages", http.StatusInternalServerError)
+		return
+	}
+	fmt.Println(messages)
+	json.NewEncoder(w).Encode(messages)
 }

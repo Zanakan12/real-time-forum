@@ -1,89 +1,65 @@
 {{define "nav"}}
 <div class="navstick">
-    <table class="nav">
-        <tr>
-            <td><a href="/"><img src="{{.Nav.LogoPath}}" width="100px"/></a></td>
-            <td><h2>{{.Nav.SiteName}}</h2></td>
-            <td class="spacer"></td>
-            {{range .Nav.Links}}
-                {{/* Display "Login" only if the user is a "traveler" and the current page is not "login" */}}
-                {{if eq .Label "Login"}}
-                    {{if eq $.UserRole "traveler"}}
-                        {{if ne $.CurrentPage "login"}}
-                            <td>
-                                <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
-                            </td>
-                        {{end}}
-                    {{end}}
-
-                {{/* Display "Register" only if the user is a "traveler" and the current page is not "register" */}}
-                {{else if eq .Label "Register"}}
-                    {{if eq $.UserRole "traveler"}}
-                        {{if ne $.CurrentPage "register"}}
-                            <td>
-                                <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
-                            </td>
-                        {{end}}
-                    {{end}}
-
-                {{/* Display "Logout" and "Profile" only if the user is not a "traveler" */}}
-                {{else if or (eq .Label "Logout") (eq .Label "Profile")}}
-                    {{if ne $.UserRole "traveler"}}
-                        {{if or (ne $.CurrentPage "profile") (ne .Label "Profile")}}
-                            <td>
-                                <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
-                            </td>
-                        {{end}}
-                    {{end}}
-
-                {{/* Display "Notifications" if the user is not a "traveler" and the current page is not "notifications" */}}
-                {{else if eq .Label "Notifications"}}
-                    {{if ne $.UserRole "traveler"}}
-                        {{if ne $.CurrentPage "notifications"}}
-                            <td>
-                                <button onclick="window.location.href='{{.Href}}'">
-                                    {{$.NotificationCount}} 🔔
-                                </button>
-                            </td>
-                        {{end}}
-                    {{end}}
-
-                {{/* Display the "Moderator Panel" link only if the user is a "moderator" */}}
-                {{else if eq .Label "Moderator Panel"}}
-                    {{if eq $.UserRole "moderator"}}
-                        {{if ne $.CurrentPage "moderator"}}
-                            <td>
-                                <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
-                            </td>
-                        {{end}}
-                    {{end}}
-
-                {{/* Display the "Admin Panel" link unless the current page is "admin" */}}
-                {{else if eq .Label "Admin Panel"}}
-                    {{if eq $.UserRole "admin"}}
-                        {{if ne $.CurrentPage "admin"}}
-                            <td>
-                                <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
-                            </td>
-                        {{end}}
-                    {{end}}
-
-                {{/* Display the "Profile" link unless the current page is "profile" */}}
-                {{else if eq .Label "Profile"}}
-                    {{if ne $.CurrentPage "profile"}}
-                        <td>
-                            <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
-                        </td>
-                    {{end}}
-
-                {{/* Display general links for all other users */}}
-                {{else}}
-                    <td>
-                        <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
-                    </td>
-                {{end}}
-            {{end}}
-        </tr>
-    </table>
+  <table class="nav">
+    <tr>
+      <td>
+        <a href="/"><img src="{{.Nav.LogoPath}}" width="100px" /></a>
+      </td>
+      <td><h2>{{.Nav.SiteName}}</h2></td>
+      <td class="spacer"></td>
+      {{range .Nav.Links}} {{/* Display "Login" only if the user is a "traveler"
+      and the current page is not "login" */}} {{if eq .Label "Login"}} {{if eq
+      $.UserRole "traveler"}} {{if ne $.CurrentPage "login"}}
+      <td>
+        <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
+      </td>
+      {{end}} {{end}} {{/* Display "Register" only if the user is a "traveler"
+      and the current page is not "register" */}} {{else if eq .Label
+      "Register"}} {{if eq $.UserRole "traveler"}} {{if ne $.CurrentPage
+      "register"}}
+      <td>
+        <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
+      </td>
+      {{end}} {{end}} {{/* Display "Logout" and "Profile" only if the user is
+      not a "traveler" */}} {{else if or (eq .Label "Logout") (eq .Label
+      "Profile")}} {{if ne $.UserRole "traveler"}} {{if or (ne $.CurrentPage
+      "profile") (ne .Label "Profile")}}
+      <td>
+        <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
+      </td>
+      {{end}} {{end}} {{/* Display "Notifications" if the user is not a
+      "traveler" and the current page is not "notifications" */}} {{else if eq
+      .Label "Notifications"}} {{if ne $.UserRole "traveler"}} {{if ne
+      $.CurrentPage "notifications"}}
+      <td>
+        <button onclick="window.location.href='{{.Href}}'">
+          {{$.NotificationCount}} 🔔
+        </button>
+      </td>
+      {{end}} {{end}} {{/* Display the "Moderator Panel" link only if the user
+      is a "moderator" */}} {{else if eq .Label "Moderator Panel"}} {{if eq
+      $.UserRole "moderator"}} {{if ne $.CurrentPage "moderator"}}
+      <td>
+        <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
+      </td>
+      {{end}} {{end}} {{/* Display the "Admin Panel" link unless the current
+      page is "admin" */}} {{else if eq .Label "Admin Panel"}} {{if eq
+      $.UserRole "admin"}} {{if ne $.CurrentPage "admin"}}
+      <td>
+        <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
+      </td>
+      {{end}} {{end}} {{/* Display the "Profile" link unless the current page is
+      "profile" */}} {{else if eq .Label "Profile"}} {{if ne $.CurrentPage
+      "profile"}}
+      <td>
+        <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
+      </td>
+      {{end}} {{/* Display general links for all other users */}} {{else}}
+      <td>
+        <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
+      </td>
+      {{end}} {{end}} {{/* Bouton Message ajouté ici */}}
+    </tr>
+  </table>
 </div>
 {{end}}

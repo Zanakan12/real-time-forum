@@ -1,6 +1,9 @@
 package db
 
-import "database/sql"
+import (
+	"database/sql"
+	"time"
+)
 
 type User struct {
 	ID        int
@@ -95,4 +98,11 @@ type ModeratorRequest struct {
 	Title            string
 	ModeratorRequest string
 	AdminResponse    sql.NullString
+}
+
+type Message struct {
+	ID        int       `json:"id" db:"id"`
+	Username  string    `json:"username" db:"username"`
+	Content   string    `json:"content" db:"content"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }

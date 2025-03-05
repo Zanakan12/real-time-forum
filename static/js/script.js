@@ -1,20 +1,138 @@
-addEventListener("DOMContentLoaded", function () {
-  const chatMessages = document.getElementById("chat-messages");
-  const unfoldButton = document.getElementById("item");
-
-  unfoldButton.innerHTML = `
-  <svg width="30" height="30" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-      <path d="M8 10L12 14L16 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-`;
-
-  unfoldButton.addEventListener("click", function () {
-    if (chatMessages.classList.contains("unfold")) {
-      chatMessages.classList.remove("unfold");
-      chatMessages.classList.add("fold");
-    } else {
-      chatMessages.classList.remove("fold");
-      chatMessages.classList.add("unfold");
-    }
+document.addEventListener("DOMContentLoaded", async () => {
+  let socket;
+  let username;
+  const sendMessageButton = document.getElementById("send-msg-button");
+  sendMessageButton.addEventListener("click", () => {
+    sendMessage();
   });
+  async function fetchUserData() {
+    try {
+      const response = await fetch("https://localhost:8080/api/get-user");
+      const data = await response.json();
+      if (data.username) {
+        username = data.username;
+        connectWebSocket();
+      } else {
+        window.location.href = "/login";
+      }
+    } catch (error) {
+      console.error(
+        "❌ Erreur lors de la récupération de l'utilisateur :",
+        error
+      );
+      window.location.href = "/login";
+    }
+  }
+
+  async function fetchMessages() {
+    try {
+      const response = await fetch("https://localhost:8080/api/chat");
+      let messages = await response.json();
+      if (messages === null)
+        messages = {
+          username: "user",
+          content: "hello",
+        };
+      messages.forEach((msg) => {
+        appendMessage(msg.username, msg.content);
+      });
+    } catch (error) {
+      console.error("❌ Erreur lors de la récupération des messages :", error);
+    }
+  }
+
+  async function fetchConnectedUsers() {
+    try {
+      const response = await fetch("https://localhost:8080/api/users");
+      const users = await response.json();
+      updateUserList(users);
+    } catch (error) {
+      console.error(
+        "❌ Erreur lors de la récupération des utilisateurs connectés :",
+        error
+      );
+    }
+  }
+
+  function connectWebSocket() {
+    const socket = new WebSocket("wss://localhost:8080/ws");
+
+    socket.onopen = function () {
+      console.log("✅ Connexion WebSocket établie !");
+      fetchConnectedUsers(); // Met à jour la liste des utilisateurs connectés
+    };
+
+    socket.onmessage = function (event) {
+      try {
+        const msg = JSON.parse(event.data);
+        console.log("📩 Message reçu :", msg);
+
+        if (msg.type === "user_list") {
+          try {
+            const userList = JSON.parse(msg.content);
+            if (Array.isArray(userList)) {
+              updateUserList(userList);
+            } else {
+              console.error(
+                "❌ Erreur : `user_list` n'est pas un tableau valide :",
+                userList
+              );
+            }
+          } catch (error) {
+            console.error(
+              "❌ Erreur lors du parsing de `user_list` :",
+              error,
+              msg.content
+            );
+          }
+        } else if (msg.type === "message") {
+          appendMessage(msg.username, msg.content);
+        }
+      } catch (error) {
+        console.error(
+          "❌ Erreur lors du parsing du message WebSocket :",
+          error,
+          event.data
+        );
+      }
+    };
+
+    socket.onclose = function () {
+      console.warn("⚠️ Connexion WebSocket fermée.");
+    };
+  }
+
+  function sendMessage() {
+    const messageInput = document.getElementById("message");
+    const message = messageInput.value.trim();
+    appendMessage(username, message);
+    console.log(message);
+    if (message && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ type: "message", content: message }));
+      messageInput.value = "";
+    }
+  }
+
+  function updateUserList(users) {
+    console.log("👥 Mise à jour de la liste des utilisateurs :", users);
+    const usersList = document.getElementById("users");
+    usersList.innerHTML = "";
+
+    JSON.parse(users).forEach((user) => {
+      const li = document.createElement("li");
+      li.textContent = user;
+      usersList.appendChild(li);
+    });
+  }
+
+  function appendMessage(user, content) {
+    const messagesList = document.getElementById("messages");
+    const li = document.createElement("li");
+    li.textContent = `${user}: ${content}`;
+    messagesList.appendChild(li);
+  }
+
+  console.log("🚀 - Page chargée !");
+  await fetchUserData();
+  //await fetchMessages();
 });

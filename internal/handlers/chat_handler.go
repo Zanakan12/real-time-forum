@@ -18,8 +18,8 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
-// Structure d'un message WebSocket
-type Message struct {
+// Structure d'un message WebSocket (utilisée uniquement dans le WebSocket)
+type WebSocketMessage struct {
 	Type     string `json:"type"`     // "message" ou "user_list"
 	Username string `json:"username"` // Nom de l'utilisateur
 	Content  string `json:"content"`  // Contenu du message
@@ -27,7 +27,7 @@ type Message struct {
 
 // Stocker les connexions WebSocket
 var clients = make(map[*websocket.Conn]string) // Connexion → Username
-var broadcast = make(chan Message)
+var broadcast = make(chan WebSocketMessage)
 var mutex = sync.Mutex{}
 
 func InitWebSocket() {
@@ -70,21 +70,21 @@ func CheckInactiveUsers() {
 			conn.Close()
 		}
 
-		broadcast <- Message{Type: "user_list", Content: GetUserListJSON()}
+		broadcast <- WebSocketMessage{Type: "user_list", Content: GetUserListJSON()}
 		mutex.Unlock()
 	}
 }
 
 func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	session := middlewares.GetCookie(w, r)
-	fmt.Println("Connexion WebSocket de :", session.Username)
-
 	userName, err := db.DecryptData(session.Username)
+
 	if err != nil || userName == "" {
 		fmt.Println("Refus de connexion WebSocket : Session invalide")
 		http.Error(w, "Session invalide", http.StatusUnauthorized)
 		return
 	}
+	fmt.Println("Connexion WebSocket de :", userName)
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -98,29 +98,48 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	mutex.Unlock()
 
 	// Notifier les autres utilisateurs
-	broadcast <- Message{Type: "user_list", Content: GetUserListJSON()}
+	broadcast <- WebSocketMessage{Type: "user_list", Content: GetUserListJSON()}
 
 	// Nettoyage en cas de déconnexion
 	defer func() {
 		mutex.Lock()
 		delete(clients, conn)
 		mutex.Unlock()
-		broadcast <- Message{Type: "user_list", Content: GetUserListJSON()}
+		broadcast <- WebSocketMessage{Type: "user_list", Content: GetUserListJSON()}
 		fmt.Println("Utilisateur déconnecté :", userName)
 		conn.Close()
 	}()
 
 	// Lire les messages entrants
 	for {
-		var msg Message
+		var msg WebSocketMessage
 		err := conn.ReadJSON(&msg)
 		if err != nil {
-			fmt.Println("Erreur WebSocket ou déconnexion détectée pour :", userName)
-			break // Quitter la boucle et déclencher le `defer`
+			fmt.Println("🚨 Erreur WebSocket ou déconnexion détectée pour :", userName)
+			break
 		}
+
 		msg.Username = userName
+		fmt.Println("📩 Message reçu :", msg.Username, "->", msg.Content) // Ajout du log
+
+		// Sauvegarde du message dans la base de données
+		newMessage := db.Message{
+			Username:  msg.Username,
+			Content:   msg.Content,
+			CreatedAt: time.Now(),
+		}
+
+		err = db.SaveMessage(newMessage)
+		if err != nil {
+			fmt.Println("❌ Erreur lors de l'enregistrement du message :", err)
+		} else {
+			fmt.Println("✅ Message enregistré avec succès !")
+		}
+
+		// Diffusion du message aux autres clients
 		broadcast <- msg
 	}
+
 }
 
 // GetUserListJSON retourne la liste des utilisateurs connectés en JSON
@@ -135,7 +154,6 @@ func GetUserListJSON() string {
 	}
 
 	usersJSON, _ := json.Marshal(usernames)
-	fmt.Println(string(usersJSON))
 	return string(usersJSON)
 }
 

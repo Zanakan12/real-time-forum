@@ -57,10 +57,12 @@ func InitServer() {
 	server.Use(middlewares.ErrorMiddleware)
 	server.Use(middlewares.RateLimitingMiddleware)
 	//server.Use(middlewares.AuthMiddleware)
+
 	// Add websocket handler
 	http.HandleFunc("/ws", handlers.HandleWebSocket)
 	server.Handle("/api/get-user", handlers.GetUserHandler)
 	server.Handle("/api/users", handlers.GetUserListHandler)
+	http.HandleFunc("/api/chat", handlers.GetChatHistory)
 
 	// Start the server
 	if err := server.Start(); err != nil {

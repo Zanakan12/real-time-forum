@@ -116,6 +116,10 @@ var NavData NavTmpl = NavTmpl{
 			Href:  "/admin",
 		},
 		Link{
+			Label: "chat 💬",
+			Href:  "/chat",
+		},
+		Link{
 			Label: "Logout",
 			Href:  "/logout",
 		},
