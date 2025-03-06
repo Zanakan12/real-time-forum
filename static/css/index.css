@@ -181,3 +181,11 @@ textarea {
   width: 13%;
   border-radius: 5px;
 }
+/*style message me*/
+
+.me {
+  width: auto;
+  background-color: #34acfc;
+  margin-top: 10px;
+  border-radius: 25px;
+}

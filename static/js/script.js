@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.warn("⚠️ Aucun message disponible.");
         return;
       }
-      console.log(action)
+      console.log(action);
       if (action) {
         const lastMessage = messages.at(-1);
         if (lastMessage) {
@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
   }
 
-  function sendMessage(recipient) {
+  async function sendMessage(recipient) {
     const messageInput = document.getElementById("message");
     const message = messageInput.value.trim();
     if (message && socket.readyState === WebSocket.OPEN) {
@@ -153,6 +153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const messagesList = document.getElementById("messages");
     const li = document.createElement("li");
     li.textContent = `${username}: ${content} ${createa_at}`;
+    li.classList.add(`me`);
     messagesList.appendChild(li);
   }
 
