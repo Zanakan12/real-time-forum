@@ -47,8 +47,12 @@ func GetUserListHandler(w http.ResponseWriter, r *http.Request) {
 func GetChatHistory(w http.ResponseWriter, r *http.Request) {
 	session := middlewares.GetCookie(w, r)
 	userName, err := db.DecryptData(session.Username)
+	if err != nil {
+		http.Error(w, "Erreur lors de la récupération du décrytpage de l'username", http.StatusInternalServerError)
+		return
+	}
+
 	messages, err := db.GetMessages(userName)
-	log.Println(messages,userName)
 	if err != nil {
 		http.Error(w, "Erreur lors de la récupération des messages", http.StatusInternalServerError)
 		return

@@ -37,7 +37,7 @@ func GetMessages(username string) ([]WebSocketMessage, error) {
 	db := SetupDatabase()
 	defer db.Close()
 
-	query := `SELECT recipient, content 
+	query := `SELECT username, content, created_at
 	FROM messages 
 	WHERE username = ? 
 	ORDER BY created_at ASC`
@@ -50,11 +50,12 @@ func GetMessages(username string) ([]WebSocketMessage, error) {
 	var messages []WebSocketMessage
 	for rows.Next() {
 		var msg WebSocketMessage
-		err := rows.Scan(&msg.Username, &msg.Content)
+		err := rows.Scan(&msg.Username, &msg.Content, &msg.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
 		messages = append(messages, msg)
 	}
+
 	return messages, nil
 }

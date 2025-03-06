@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       let messages = await response.json();
 
       messages.forEach((msg) => {
-        appendMessage(msg.username, msg.content);
+        appendMessage(msg.username, msg.content, msg.created_at);
       });
     } catch (error) {
       console.error("❌ Erreur lors de la récupération des messages :", error);
@@ -129,10 +129,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  function appendMessage(user, content) {
+  function appendMessage(username, content, createa_at) {
     const messagesList = document.getElementById("messages");
     const li = document.createElement("li");
-    li.textContent = `${user}: ${content}`;
+    li.textContent = `${username}: ${content} ${createa_at}`;
     messagesList.appendChild(li);
   }
 

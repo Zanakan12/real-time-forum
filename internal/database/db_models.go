@@ -105,4 +105,5 @@ type WebSocketMessage struct {
 	Username  string `json:"username"` // Nom de l'utilisateur
 	Content   string `json:"content"`  // Contenu du message
 	Recipient string `json:"recipient"`
+	CreatedAt string `json:"created_at"`
 }
