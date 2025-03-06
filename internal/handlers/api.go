@@ -45,11 +45,14 @@ func GetUserListHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetChatHistory(w http.ResponseWriter, r *http.Request) {
-	messages, err := db.GetMessages()
+	session := middlewares.GetCookie(w, r)
+	userName, err := db.DecryptData(session.Username)
+	messages, err := db.GetMessages(userName)
+	log.Println(messages,userName)
 	if err != nil {
 		http.Error(w, "Erreur lors de la récupération des messages", http.StatusInternalServerError)
 		return
 	}
-	fmt.Println(messages)
+
 	json.NewEncoder(w).Encode(messages)
 }

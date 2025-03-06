@@ -87,7 +87,7 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 
 	// Check if the user exists
 	authUser, logOAuthErr := db.UserSelectLoginOAuth(email)
-	log.Println("authUser", authUser)
+
 	if logOAuthErr != nil {
 		log.Printf("Utilisateur non trouvé, création d'un nouveau compte pour: %s", email)
 		username, ok := user["name"].(string)
@@ -115,7 +115,6 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	log.Printf("Utilisateur authentifié: ID=%d, Username=%s, Role=%s", authUser.ID, authUser.Username, authUser.Role)
 	authUser.Username, _ = db.DecryptData(authUser.Username)
 	// Create session using your custom CreateSession function
 	middlewares.CreateSession(w, authUser.ID, authUser.Username, authUser.Role)

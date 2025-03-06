@@ -9,6 +9,7 @@ func createMessagesTable(db *sql.DB) {
 	createTableSQL := `CREATE TABLE IF NOT EXISTS messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL,
+	recipient TEXT NOT NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -18,34 +19,38 @@ func createMessagesTable(db *sql.DB) {
 }
 
 // SaveMessage enregistre un message dans la base de données
-func  SaveMessage(msg Message) error {
+func SaveMessage(username, recipient, content string) error {
 	db := SetupDatabase()
 	defer db.Close()
 
-	query := `INSERT INTO messages (username, content, created_at) VALUES (?, ?, ?)`
-	_, err := db.Exec(query, msg.Username, msg.Content, msg.CreatedAt)
+	query := `INSERT INTO messages (username,recipient, content) VALUES (?, ?, ?)`
+	_, err := db.Exec(query, username, recipient, content)
 	if err != nil {
 		return fmt.Errorf("Erreur lors de l'insertion du message : %v", err)
 	}
+
 	return nil
 }
 
-func GetMessages() ([]Message, error) {
+func GetMessages(username string) ([]WebSocketMessage, error) {
 
 	db := SetupDatabase()
 	defer db.Close()
 
-	query := `SELECT id, username, content, created_at FROM messages ORDER BY created_at ASC`
-	rows, err := db.Query(query)
+	query := `SELECT recipient, content 
+	FROM messages 
+	WHERE username = ? 
+	ORDER BY created_at ASC`
+	rows, err := db.Query(query, username)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var messages []Message
+	var messages []WebSocketMessage
 	for rows.Next() {
-		var msg Message
-		err := rows.Scan(&msg.ID, &msg.Username, &msg.Content, &msg.CreatedAt)
+		var msg WebSocketMessage
+		err := rows.Scan(&msg.Username, &msg.Content)
 		if err != nil {
 			return nil, err
 		}

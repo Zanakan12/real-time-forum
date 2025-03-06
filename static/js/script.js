@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const sendMessageButton = document.getElementById("send-msg-button");
   sendMessageButton.addEventListener("click", () => {
     sendMessage();
+    fetchMessages();
   });
   async function fetchUserData() {
     try {
@@ -27,12 +28,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function fetchMessages() {
     try {
       const response = await fetch("https://localhost:8080/api/chat");
+
       let messages = await response.json();
-      if (messages === null)
-        messages = {
-          username: "user",
-          content: "hello",
-        };
+
       messages.forEach((msg) => {
         appendMessage(msg.username, msg.content);
       });
@@ -55,7 +53,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function connectWebSocket() {
-    const socket = new WebSocket("wss://localhost:8080/ws");
+    socket = new WebSocket("wss://localhost:8080/ws");
 
     socket.onopen = function () {
       console.log("✅ Connexion WebSocket établie !");
@@ -102,15 +100,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
   }
 
-  function sendMessage() {
+  function sendMessage(recipient) {
     const messageInput = document.getElementById("message");
     const message = messageInput.value.trim();
-    appendMessage(username, message);
-    console.log(message);
     if (message && socket.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify({ type: "message", content: message }));
+      socket.send(
+        JSON.stringify({
+          type: "message",
+          username: username,
+          recipient: "voyou",
+          content: message,
+        })
+      );
       messageInput.value = "";
     }
+    fetchMessages();
   }
 
   function updateUserList(users) {
@@ -134,5 +138,5 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   console.log("🚀 - Page chargée !");
   await fetchUserData();
-  //await fetchMessages();
+  await fetchMessages();
 });

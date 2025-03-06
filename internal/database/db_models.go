@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"time"
 )
 
 type User struct {
@@ -100,9 +99,10 @@ type ModeratorRequest struct {
 	AdminResponse    sql.NullString
 }
 
-type Message struct {
-	ID        int       `json:"id" db:"id"`
-	Username  string    `json:"username" db:"username"`
-	Content   string    `json:"content" db:"content"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
+// Structure d'un message WebSocket
+type WebSocketMessage struct {
+	Type      string `json:"type"`     // "message" ou "user_list"
+	Username  string `json:"username"` // Nom de l'utilisateur
+	Content   string `json:"content"`  // Contenu du message
+	Recipient string `json:"recipient"`
 }
