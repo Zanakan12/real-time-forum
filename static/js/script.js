@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const sendMessageButton = document.getElementById("send-msg-button");
   sendMessageButton.addEventListener("click", () => {
     sendMessage();
-    fetchMessages();
   });
   async function fetchUserData() {
     try {
@@ -25,15 +24,36 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  async function fetchMessages() {
+  async function fetchMessages(action) {
     try {
       const response = await fetch("https://localhost:8080/api/chat");
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
       let messages = await response.json();
 
-      messages.forEach((msg) => {
-        appendMessage(msg.username, msg.content, msg.created_at);
-      });
+      if (!Array.isArray(messages) || messages.length === 0) {
+        console.warn("⚠️ Aucun message disponible.");
+        return;
+      }
+      console.log(action)
+      if (action) {
+        const lastMessage = messages.at(-1);
+        if (lastMessage) {
+          appendMessage(
+            lastMessage.username,
+            lastMessage.content,
+            lastMessage.created_at
+          );
+        }
+      } else {
+        console.log(action);
+        messages.forEach((msg) => {
+          appendMessage(msg.username, msg.content, msg.created_at);
+        });
+      }
     } catch (error) {
       console.error("❌ Erreur lors de la récupération des messages :", error);
     }
@@ -114,7 +134,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       );
       messageInput.value = "";
     }
-    fetchMessages();
+    fetchMessages(true);
   }
 
   function updateUserList(users) {
@@ -138,5 +158,5 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   console.log("🚀 - Page chargée !");
   await fetchUserData();
-  await fetchMessages();
+  await fetchMessages(false);
 });
