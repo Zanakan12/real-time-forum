@@ -170,11 +170,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     usersList.innerHTML = "";
 
     users.forEach((user) => {
-      const li = document.createElement("li");
-      li.textContent = user;
-      li.classList.add("selectUser");
-      li.id = `${user}`;
-      usersList.appendChild(li);
+      if (user !== username) {
+        const li = document.createElement("li");
+        li.textContent = user;
+        li.classList.add("selectUser");
+        li.id = `${user}`;
+        usersList.appendChild(li);
+      }
     });
   }
 
@@ -190,9 +192,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       li.classList.add("received");
     }
 
-    li.innerHTML = `<strong>${username} → ${recipient} :</strong> ${content} <small>(${new Date(
+    li.innerHTML = `${content} <small>${new Date(
       createdAt
-    ).toLocaleTimeString()})</small>`;
+    ).toLocaleTimeString()}</small>`;
     messagesList.appendChild(li);
   }
 
@@ -200,3 +202,37 @@ document.addEventListener("DOMContentLoaded", async () => {
   await fetchUserData();
   await fetchMessages();
 });
+
+document
+  .getElementById("imageInput")
+  .addEventListener("change", function (event) {
+    console.log("telechargement en CountQueuingStrategy")
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const preview = document.getElementById("preview");
+        preview.src = e.target.result;
+        preview.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+document
+  .getElementById("uploadForm")
+  .addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const formData = new FormData();
+    formData.append("user-profile", document.getElementById("user-profile").value);
+    formData.append("image", document.getElementById("imageInput").files[0]);
+
+    const response = await fetch("http://localhost:8080/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await response.text();
+    document.getElementById("responseMessage").innerText = result;
+  });
