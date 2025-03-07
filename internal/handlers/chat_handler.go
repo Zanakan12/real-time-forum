@@ -21,35 +21,37 @@ var upgrader = websocket.Upgrader{
 
 // Structure d'un message WebSocket
 type WebSocketMessage struct {
-	Type      string `json:"type"`     // "message" ou "user_list"
-	Username  string `json:"username"` // Nom de l'utilisateur
-	Content   string `json:"content"`  // Contenu du message
-	Recipient string `json:"recipient"`
+	Type      string `json:"type"`      // "message" ou "user_list"
+	Username  string `json:"username"`  // Expéditeur
+	Recipient string `json:"recipient"` // Destinataire
+	Content   string `json:"content"`   // Contenu du message
+	Read      bool   `json:"read"`      // Indique si le message a été lu
+	CreatedAt string `json:"created_at"`
 }
 
-// Stockage des connexions WebSocket
+// Stockage des connexions WebSocket (map username -> websocket.Conn)
 var (
-	clients   = make(map[*websocket.Conn]string) // Connexion → Username
-	broadcast = make(chan WebSocketMessage, 10)  // Canal bufferisé pour éviter les blocages
+	clients   = make(map[string]*websocket.Conn) // Connexions des utilisateurs
+	broadcast = make(chan WebSocketMessage, 10)  // Canal bufferisé pour diffusion des messages
 	mutex     = sync.Mutex{}
 )
 
 // Initialisation du WebSocket (écoute des messages et gestion des inactifs)
 func InitWebSocket() {
-	go handleBroadcast()    // Goroutine pour gérer la diffusion des messages
-	go checkInactiveUsers() // Goroutine pour détecter les utilisateurs inactifs
+	go handleBroadcast()
+	go checkInactiveUsers()
 }
 
-// Écoute des messages à diffuser à tous les clients
+// Diffusion des messages à tous les utilisateurs (utile pour mise à jour de la liste des connectés)
 func handleBroadcast() {
 	for {
 		msg := <-broadcast
 		mutex.Lock()
-		for client := range clients {
-			if err := client.WriteJSON(msg); err != nil {
-				fmt.Println("Erreur d'envoi WebSocket :", err)
-				client.Close()
-				delete(clients, client) // Suppression immédiate des connexions mortes
+		for _, conn := range clients {
+			if err := conn.WriteJSON(msg); err != nil {
+				log.Println("Erreur d'envoi WebSocket :", err)
+				conn.Close()
+				delete(clients, msg.Username)
 			}
 		}
 		mutex.Unlock()
@@ -62,28 +64,15 @@ func checkInactiveUsers() {
 		time.Sleep(30 * time.Second)
 
 		mutex.Lock()
-		inactiveClients := []*websocket.Conn{}
-
-		for conn, username := range clients {
+		for username, conn := range clients {
 			err := conn.WriteMessage(websocket.PingMessage, nil)
 			if err != nil {
 				fmt.Println("Déconnexion pour inactivité :", username)
-				inactiveClients = append(inactiveClients, conn)
+				delete(clients, username)
+				conn.Close()
 			}
 		}
-
-		// Supprime les connexions inactives
-		for _, conn := range inactiveClients {
-			delete(clients, conn)
-			conn.Close()
-		}
-
-		// Mise à jour de la liste des utilisateurs actifs
-		select {
-		case broadcast <- WebSocketMessage{Type: "user_list", Content: GetUserListJSON()}:
-		default:
-			fmt.Println("Le canal de diffusion est plein, message ignoré.")
-		}
+		broadcast <- WebSocketMessage{Type: "user_list", Content: GetUserListJSON()}
 		mutex.Unlock()
 	}
 }
@@ -94,67 +83,109 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	session := middlewares.GetCookie(w, r)
 	userName, err := db.DecryptData(session.Username)
 	if err != nil || userName == "" {
-		fmt.Println("Refus de connexion WebSocket : Session invalide")
 		http.Error(w, "Session invalide", http.StatusUnauthorized)
 		return
 	}
 
-	fmt.Println("Connexion WebSocket de :", userName)
-
-	// Mise à niveau de la connexion HTTP vers WebSocket
+	// Upgrade vers WebSocket
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		fmt.Println("Erreur WebSocket :", err)
+		log.Println("Erreur WebSocket :", err)
 		return
 	}
-	defer conn.Close() // Ferme la connexion à la fin de la fonction
 
 	// Ajouter l'utilisateur à la liste des connectés
 	mutex.Lock()
-	clients[conn] = userName
+	clients[userName] = conn
 	mutex.Unlock()
 
-	// Mise à jour de la liste des utilisateurs connectés
-	select {
-	case broadcast <- WebSocketMessage{Type: "user_list", Content: GetUserListJSON()}:
-	default:
-		fmt.Println("Le canal de diffusion est plein, message ignoré.")
-	}
+	log.Println("Utilisateur connecté :", userName)
+
+	// Envoyer les messages non lus à la reconnexion
+	fetchUnreadMessages(userName)
+
+	// Mettre à jour la liste des utilisateurs connectés
+	updateUserList()
 
 	// Gestion des messages WebSocket
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
-			log.Println("Erreur lecture :", err)
+			log.Println("Déconnexion :", userName)
 			break
 		}
 
-		// Décodage du message JSON reçu
+		// Décoder le message reçu
 		var receivedMessage WebSocketMessage
-		err = json.Unmarshal(msg, &receivedMessage)
-		if err != nil {
+		if err := json.Unmarshal(msg, &receivedMessage); err != nil {
 			log.Println("Message invalide :", err)
 			continue
 		}
 
-		log.Printf("Message reçu de %s: %s pour %s\n", receivedMessage.Username, receivedMessage.Content, receivedMessage.Recipient)
-		db.SaveMessage(receivedMessage.Username, receivedMessage.Recipient, receivedMessage.Content)
+		log.Printf("Message de %s → %s : %s\n", receivedMessage.Username, receivedMessage.Recipient, receivedMessage.Content)
 
-		// Diffusion du message reçu à tous les clients
-		select {
-		case broadcast <- receivedMessage:
-		default:
-			fmt.Println("Le canal de diffusion est plein, message ignoré.")
-		}
+		// Sauvegarde et envoi du message
+		sendMessageToUser(receivedMessage.Recipient, receivedMessage)
 	}
 
 	// Suppression de l'utilisateur après la déconnexion
 	mutex.Lock()
-	delete(clients, conn)
+	delete(clients, userName)
 	mutex.Unlock()
-	broadcast <- WebSocketMessage{Type: "user_list", Content: GetUserListJSON()}
+	updateUserList()
 
-	fmt.Println("Utilisateur déconnecté :", userName)
+	conn.Close()
+}
+
+// Envoi d'un message à un utilisateur spécifique
+func sendMessageToUser(toUsername string, message WebSocketMessage) {
+	mutex.Lock()
+	conn, online := clients[toUsername]
+	mutex.Unlock()
+
+	if online {
+		// Utilisateur en ligne → Envoi direct
+		err := conn.WriteJSON(message)
+		if err != nil {
+			log.Printf("Erreur d'envoi à %s: %v", toUsername, err)
+			mutex.Lock()
+			delete(clients, toUsername) // Supprimer la connexion si elle est cassée
+			mutex.Unlock()
+		}
+		message.Read = true
+		db.SaveMessage(message.Username, message.Recipient, message.Content, message.Read)
+	} else {
+		// Utilisateur hors ligne → Stockage en base
+		message.Read = false
+		db.SaveMessage(message.Username, message.Recipient, message.Content, message.Read)
+		log.Printf("Utilisateur %s hors ligne, message stocké.", toUsername)
+	}
+}
+
+// Récupère les messages non lus pour un utilisateur et les lui envoie
+func fetchUnreadMessages(username string) {
+	messages := db.GetUnreadMessages(username)
+
+	mutex.Lock()
+	conn, online := clients[username]
+	mutex.Unlock()
+
+	if online {
+		for _, msg := range messages {
+			err := conn.WriteJSON(msg)
+			if err != nil {
+				log.Printf("Erreur d'envoi du message stocké à %s: %v", username, err)
+			} else {
+				db.MarkMessageAsRead(msg)
+			}
+		}
+	}
+}
+
+// Mise à jour de la liste des utilisateurs connectés
+func updateUserList() {
+	userList := GetUserListJSON()
+	broadcast <- WebSocketMessage{Type: "user_list", Content: userList}
 }
 
 // Retourne la liste des utilisateurs connectés en JSON
@@ -162,30 +193,13 @@ func GetUserListJSON() string {
 	mutex.Lock()
 	defer mutex.Unlock()
 	usernames := []string{}
-	for _, username := range clients {
-		if !contains(usernames, username) {
-			usernames = append(usernames, username)
-		}
+	for username := range clients {
+		usernames = append(usernames, username)
 	}
-
-	usersJSON, err := json.Marshal(usernames)
-	if err != nil {
-		log.Println(err)
-	}
+	usersJSON, _ := json.Marshal(usernames)
 	return string(usersJSON)
 }
 
-// Vérifie si un utilisateur est déjà dans la liste
-func contains(slice []string, item string) bool {
-	for _, val := range slice {
-		if val == item {
-			return true
-		}
-	}
-	return false
-}
-
-// Servir la page de chat
-func ChatPageHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "web/pages/chat.html") // Assurez-vous que chat.html est bien placé
+func ChatHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "web/pages/chat.html")
 }

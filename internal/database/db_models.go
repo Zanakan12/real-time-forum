@@ -101,9 +101,10 @@ type ModeratorRequest struct {
 
 // Structure d'un message WebSocket
 type WebSocketMessage struct {
-	Type      string `json:"type"`     // "message" ou "user_list"
-	Username  string `json:"username"` // Nom de l'utilisateur
-	Content   string `json:"content"`  // Contenu du message
-	Recipient string `json:"recipient"`
-	CreatedAt string `json:"created_at"`
+	Type      string `json:"type"`       // "message" ou "user_list"
+	Username  string `json:"username"`   // Expéditeur
+	Recipient string `json:"recipient"`  // Destinataire
+	Content   string `json:"content"`    // Contenu du message
+	Read      bool   `json:"read"`       // Indique si le message a été lu
+	CreatedAt string `json:"created_at"` // Timestamp
 }

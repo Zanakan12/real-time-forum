@@ -183,9 +183,67 @@ textarea {
 }
 /*style message me*/
 
-.me {
-  width: auto;
-  background-color: #34acfc;
-  margin-top: 10px;
-  border-radius: 25px;
+#chat {
+  width: 20%;
+  margin: auto;
+  background: rgb(119, 116, 116);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px gray;
+}
+
+#messages {
+  list-style: none;
+  padding: 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.message {
+  padding: 10px;
+  margin: 5px;
+  border-radius: 10px;
+}
+
+.sent {
+  background-color: #0ac000;
+  width: fit-content;
+  align-self: flex-end;
+  text-align: right;
+  color: #0c0c0c;
+  margin-left: auto;
+}
+
+.received {
+  background-color: #0268c8;
+  align-self: flex-start;
+  text-align: left;
+  color: #0c0c0c;
+  width: fit-content;
+}
+
+ul {
+  padding: 0; /* Supprime le padding par défaut */
+}
+
+.selectUser {
+  width: 50px;
+  height: 50px;
+  background-color: #0268c8;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white; /* Change la couleur du texte si besoin */
+  position: relative; /* Permet de positionner le texte */
+  text-align: center;
+}
+
+.selectUser::after {
+  content: attr(id); /* Utilise l'ID comme texte */
+  position: absolute;
+  left: 60px; /* Décale le texte vers la droite */
+  white-space: nowrap; /* Empêche le retour à la ligne */
+  font-size: 16px;
+  color: black; /* Couleur du texte */
 }

@@ -46,7 +46,6 @@ func InitServer() {
 	server.Handle("/dis-login", handlers.HandleDiscordLogin)
 	server.Handle("/dis-callback", handlers.HandleDiscordCallback)
 	server.Handle("/notifications", handlers.NotificationsHandler)
-	server.Handle("/chat", handlers.ChatPageHandler)
 
 	// Errors
 	server.Handle("/404", handlers.Err404Handler)
@@ -63,7 +62,7 @@ func InitServer() {
 	server.Handle("/api/get-user", handlers.GetUserHandler)
 	server.Handle("/api/users", handlers.GetUserListHandler)
 	http.HandleFunc("/api/chat", handlers.GetChatHistory)
-
+	http.HandleFunc("/chat", handlers.ChatHandler)
 	// Start the server
 	if err := server.Start(); err != nil {
 		fmt.Printf("Error starting server: %v\n", err)
