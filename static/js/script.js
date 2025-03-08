@@ -2,20 +2,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   let socket;
   let username;
   let recipientSelect;
+  let onlineUser;
+  let offlineUser;
   // Sélection des éléments HTML
   const sendMessageButton = document.getElementById("send-msg-button");
   const messageInput = document.getElementById("message");
 
-  document.getElementById("users").addEventListener("click", function (event) {
-    if (event.target.classList.contains("selectUser")) {
-      recipientSelect = event.target.textContent;
-      // Envoyer l'ID au backend Go
-      fetch(`/api/chat?recipient=${recipientSelect}`).catch((error) =>
-        console.error("Erreur lors de la récupération des messages :", error)
-      );
+  async function getUserSelected(username) {
+    console.log("username", username);
+    try {
+      await fetch(`/api/chat?recipient=${username}`);
+      fetchMessages(username);
+    } catch (error) {
+      console.error("Error", error);
     }
-    fetchMessages(recipientSelect);
-  });
+  }
 
   document
     .getElementById("message")
@@ -84,7 +85,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Récupérer la liste des utilisateurs connectés
   async function fetchConnectedUsers() {
     try {
-      const response = await fetch("https://localhost:8080/api/users");
+      const response = await fetch(
+        "https://localhost:8080/api/users-connected"
+      );
       const users = await response.json();
       updateUserList(JSON.parse(users));
     } catch (error) {
@@ -166,14 +169,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Mettre à jour la liste des utilisateurs connectés
   function updateUserList(users) {
     console.log("👥 Mise à jour de la liste des utilisateurs :", users);
-    const usersList = document.getElementById("users");
+    const usersList = document.getElementById("users-online");
     usersList.innerHTML = "";
 
     users.forEach((user) => {
       if (user !== username) {
         const li = document.createElement("li");
-        li.textContent = user;
-        li.classList.add("selectUser");
+        li.textContent = user[0];
+        usersList.addEventListener("click", () => getUserSelected(user));
+        li.classList.add("selectUser", "online");
         li.id = `${user}`;
         usersList.appendChild(li);
       }
@@ -182,6 +186,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Ajouter un message dans le chat
   function appendMessage(username, recipient, content, createdAt, isSender) {
+    console.log(recipientSelect);
     const messagesList = document.getElementById("messages");
     const li = document.createElement("li");
 
@@ -198,18 +203,49 @@ document.addEventListener("DOMContentLoaded", async () => {
     messagesList.appendChild(li);
   }
 
-  const btnProfile = document.getElementById(profile-image-nav);
-  console.log(btnProfile.textContent)
-  console.log(`url('static/assets/img/${username}/profileimage.png')`);
+  async function fetchAllUsers() {
+    try {
+      const response = await fetch("https://localhost:8080/api/all-user");
+      if (!response.ok) {
+        throw new Error("Erreur lors de la récupération des utilisateurs");
+      }
+      const users = await response.json();
 
-  btnProfile.style.backgroundImage = `url('static/assets/img/${username}/profileimage.png')`;
-  btnProfile.style.backgroundSize = "cover"; // Ajuste l'image
-  btnProfile.style.backgroundPosition = "center"; // Centre l'image
-  btnProfile.style.backgroundRepeat = "no-repeat"; // Empêche la répétition
+      const filtredUser = users.sort((a, b) =>
+        a.Username.localeCompare(b.Username)
+      );
+      console.log(users);
+      // Affichage sur la page HTML (si nécessaire)
+      const userList = document.getElementById("users-offline");
+      filtredUser.forEach((user) => {
+        if (user !== username) {
+          const li = document.createElement("li");
+          li.textContent = user.Username[0];
+          li.classList.add("selectUser", "offline","short");
+          li.id = `${user.Username}`;
+          userList.appendChild(li);
+        }
+      });
+    } catch (error) {
+      console.error("Erreur :", error);
+    }
+  }
+
   console.log("🚀 - Page chargée !");
   await fetchUserData();
   await fetchMessages();
+  await fetchAllUsers();
 });
+
+/*
+btnProfile.style.backgroundImage = `url('static/assets/img/${username}/profileimage.png')`;
+  btnProfile.style.backgroundSize = "cover"; // Ajuste l'image
+  btnProfile.style.backgroundPosition = "center"; // Centre l'image
+  btnProfile.style.backgroundRepeat = "no-repeat"; // Empêche la répétition
+  
+const btnProfile = document.getElementById(profile - image - nav);
+  console.log(btnProfile.textContent);
+  console.log(`url('static/assets/img/${username}/profileimage.png')`);
 
 document
   .getElementById("imageInput")
@@ -246,4 +282,4 @@ document
 
     const result = await response.text();
     document.getElementById("responseMessage").innerText = result;
-  });
+  });*/

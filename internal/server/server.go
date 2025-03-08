@@ -60,9 +60,10 @@ func InitServer() {
 	// Add websocket handler
 	http.HandleFunc("/ws", handlers.HandleWebSocket)
 	server.Handle("/api/get-user", handlers.GetUserHandler)
-	server.Handle("/api/users", handlers.GetUserListHandler)
+	server.Handle("/api/users-connected", handlers.GetUserListHandler)
 	http.HandleFunc("/api/chat", handlers.GetChatHistory)
 	http.HandleFunc("/chat", handlers.ChatHandler)
+	http.HandleFunc("/api/all-user", handlers.GetAllUsersHandler)
 	// Start the server
 	if err := server.Start(); err != nil {
 		fmt.Printf("Error starting server: %v\n", err)

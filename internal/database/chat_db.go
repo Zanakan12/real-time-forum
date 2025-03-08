@@ -2,8 +2,9 @@ package db
 
 import (
 	"database/sql"
+
+	"fmt"
 	"log"
-	"net/http"
 )
 
 func createMessagesTable(db *sql.DB) {
@@ -93,6 +94,37 @@ func MarkMessageAsRead(msg WebSocketMessage) error {
 	return err
 }
 
-func chatHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "static/chat.html")
+func GetAllUser() ([]User, error) {
+	db := SetupDatabase()
+	defer db.Close()
+	// Requête SQL pour récupérer tous les users
+	query := "SELECT username FROM users"
+
+	// Exécuter la requête
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("erreur lors de l'exécution de la requête : %v", err)
+	}
+	defer rows.Close()
+	// Slice pour stocker les users
+	var users []User
+
+	// Itérer sur les lignes retournées par la requête
+	for rows.Next() {
+		var user User
+		err := rows.Scan(
+			&user.Username,
+		)
+
+		if err != nil {
+			return nil, fmt.Errorf("erreur lors de l'analyse des données : %v", err)
+		}
+		users = append(users, user)
+	}
+
+	// Vérifier les erreurs lors de l'itération
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("erreur pendant l'itération : %v", err)
+	}
+	return users, nil
 }

@@ -23,10 +23,22 @@
     {{template "categoriesselection" .}}
     {{template "lastposts" .}}
     <div id="chat-messages" class="fold">
-        <section class="first-line">
-            <div id="title">Chat</div>
-            <div id="status-members">online</div>
-            <div id="item">+</div>
+        <section>
+            <div id="all-users">
+                <h3>Utilisateurs connectés :</h3>
+                <ul id="users-online"></ul>
+                <h3>Utilisateurs hors ligne :</h3>
+                <ul id="users-offline"></ul>
+            </div>
+
+
+            <div id="chat">
+                <div id="users-logo"></h3>
+                <ul id="messages"></ul>
+
+                <input id="message" type="text" placeholder="Écrivez un message">
+                <input id="send-msg-button" type="button" value="Envoyer"></button>
+            </div>
         </section>
     </div>
     <script src="static/js/script.js"></script>

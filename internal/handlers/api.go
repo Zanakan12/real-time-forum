@@ -66,3 +66,23 @@ func GetChatHistory(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("message", messages)
 	json.NewEncoder(w).Encode(string(usersJSON))
 }
+
+func GetAllUsersHandler(w http.ResponseWriter, r *http.Request) {
+	users, err := db.GetAllUser()
+	if err != nil {
+		http.Error(w, "Erreur lors de la récupération des utilisateurs", http.StatusInternalServerError)
+		return
+	}
+
+	for i := range users {
+		var decryptErr error
+		users[i].Username, decryptErr = db.DecryptData(users[i].Username)
+		if decryptErr != nil {
+			log.Println("Erreur lors du décryptage des usernames :", decryptErr)
+		}
+	}
+
+	// Convertir la liste des utilisateurs en JSON
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(users)
+}
