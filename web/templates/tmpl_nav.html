@@ -25,7 +25,7 @@
       "Profile")}} {{if ne $.UserRole "traveler"}} {{if or (ne $.CurrentPage
       "profile") (ne .Label "Profile")}}
       <td>
-        <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
+        <button id="profile-image-nav" onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
       </td>
       {{end}} {{end}} {{/* Display "Notifications" if the user is not a
       "traveler" and the current page is not "notifications" */}} {{else if eq

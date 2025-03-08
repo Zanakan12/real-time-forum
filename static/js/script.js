@@ -198,6 +198,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     messagesList.appendChild(li);
   }
 
+  const btnProfile = document.getElementById(profile-image-nav);
+  console.log(btnProfile.textContent)
+  console.log(`url('static/assets/img/${username}/profileimage.png')`);
+
+  btnProfile.style.backgroundImage = `url('static/assets/img/${username}/profileimage.png')`;
+  btnProfile.style.backgroundSize = "cover"; // Ajuste l'image
+  btnProfile.style.backgroundPosition = "center"; // Centre l'image
+  btnProfile.style.backgroundRepeat = "no-repeat"; // Empêche la répétition
   console.log("🚀 - Page chargée !");
   await fetchUserData();
   await fetchMessages();
@@ -206,7 +214,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 document
   .getElementById("imageInput")
   .addEventListener("change", function (event) {
-    console.log("telechargement en CountQueuingStrategy")
+    console.log("telechargement en CountQueuingStrategy");
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -225,7 +233,10 @@ document
     event.preventDefault();
 
     const formData = new FormData();
-    formData.append("user-profile", document.getElementById("user-profile").value);
+    formData.append(
+      "user-profile",
+      document.getElementById("user-profile").value
+    );
     formData.append("image", document.getElementById("imageInput").files[0]);
 
     const response = await fetch("http://localhost:8080/upload", {
