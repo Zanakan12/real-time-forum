@@ -62,8 +62,6 @@ func GetChatHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	usersJSON, _ := json.Marshal(messages)
-
-	fmt.Println("message", messages)
 	json.NewEncoder(w).Encode(string(usersJSON))
 }
 
@@ -77,6 +75,7 @@ func GetAllUsersHandler(w http.ResponseWriter, r *http.Request) {
 	for i := range users {
 		var decryptErr error
 		users[i].Username, decryptErr = db.DecryptData(users[i].Username)
+
 		if decryptErr != nil {
 			log.Println("Erreur lors du décryptage des usernames :", decryptErr)
 		}

@@ -220,8 +220,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       filtredUser.forEach((user) => {
         if (user !== username) {
           const li = document.createElement("li");
-          li.textContent = user.Username[0];
-          li.classList.add("selectUser", "offline","short");
+          li.textContent = user.Username[0].toUpperCase();
+          li.classList.add("selectUser", "offline", "short");
           li.id = `${user.Username}`;
           userList.appendChild(li);
         }
