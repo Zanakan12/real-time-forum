@@ -8,15 +8,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   const sendMessageButton = document.getElementById("send-msg-button");
   const messageInput = document.getElementById("message");
 
-  async function getUserSelected(username) {
-    console.log("username", username);
-    try {
-      await fetch(`/api/chat?recipient=${username}`);
-      fetchMessages(username);
-    } catch (error) {
-      console.error("Error", error);
-    }
-  }
+  document
+    .getElementById("users-online")
+    .addEventListener("click", function (event) {
+      if (event.target.classList.contains("selectUser")) {
+        recipientSelect = event.target.id;
+        // Envoyer l'ID au backend Go
+        fetch(`/api/chat?recipient=${recipientSelect}`).catch((error) =>
+          console.error("Erreur lors de la récupération des messages :", error)
+        );
+      }
+      fetchMessages(recipientSelect);
+    });
 
   document
     .getElementById("message")
@@ -49,7 +52,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Récupérer les anciens messages
   async function fetchMessages(recipientSelect) {
-    console.log("longueur", recipientSelect);
     if (recipientSelect === undefined) return;
     try {
       const response = await fetch(
@@ -138,7 +140,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function sendMessage() {
     const recipient = recipientSelect;
     const message = messageInput.value.trim();
-
+    console.log(recipient, message);
     if (!recipient || !message) {
       alert("Veuillez entrer un destinataire et un message !");
       return;
@@ -151,7 +153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         recipient: recipient,
         content: message,
       };
-
+     
       socket.send(JSON.stringify(msgObj));
       appendMessage(
         username,
@@ -160,6 +162,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         new Date().toISOString(),
         true
       ); // Affichage immédiat
+      console.log("message envoyé");
       messageInput.value = "";
     } else {
       alert("WebSocket non connecté !");
@@ -176,7 +179,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (user !== username) {
         const li = document.createElement("li");
         li.textContent = user[0];
-        usersList.addEventListener("click", () => getUserSelected(user));
         li.classList.add("selectUser", "online");
         li.id = `${user}`;
         usersList.appendChild(li);
@@ -214,7 +216,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       const filtredUser = users.sort((a, b) =>
         a.Username.localeCompare(b.Username)
       );
-      console.log(users);
       // Affichage sur la page HTML (si nécessaire)
       const userList = document.getElementById("users-offline");
       filtredUser.forEach((user) => {
@@ -233,7 +234,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   console.log("🚀 - Page chargée !");
   await fetchUserData();
-  await fetchMessages();
   await fetchAllUsers();
 });
 

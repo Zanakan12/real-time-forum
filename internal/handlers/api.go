@@ -54,7 +54,7 @@ func GetChatHistory(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Erreur lors de la récupération du décrytpage de l'username", http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("message debug")
+
 	messages, err := db.GetMessages(userName, recipient)
 
 	if err != nil {
