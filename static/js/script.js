@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.getElementById("messages").addEventListener("scroll", function () {
     if (this.scrollTop === 0) {
-      loadOlderMessages(); // Fonction pour récupérer les anciens messages
+      //loadOlderMessages(); // Fonction pour récupérer les anciens messages
     }
   });
 
@@ -135,7 +135,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!Array.isArray(messages)) {
         return console.warn("⚠️ Aucun message disponible.");
       }
-
+      const messagesList = document.getElementById("messages");
+      messagesList.innerHTML = "";
       messages.forEach((msg) => {
         let isSender = false;
         if (msg.username === username) {

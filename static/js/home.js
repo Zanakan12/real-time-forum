@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{.Title}}</title>
-    <link rel="stylesheet" href="static/css/index.css">
-    <link rel="icon" href="/static/assets/img/4.png" type="image/x-icon">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
-
-</head>
-
-<body>
-    <div id="navstick"></div>
+document.getElementById("content").innerHTML = `
     <h4>{{.UserUsername}}, {{if eq .UserRole "traveler"}}register to {{end}}tell us a story...</h4>
     {{if ne .UserRole "traveler"}}
     <div id="newpost-container"></div>
@@ -31,7 +14,6 @@
                 <ul id="users-offline"></ul>
             </div>
 
-
             <div id="chat" class="hidden">
                 <div id="users-logo"> </div>
                 <ul id="messages"></ul>
@@ -42,14 +24,5 @@
                 </div>
             </div>
         </section>
-
-        <script src="static/js/nav.js"></script>
-        <script src="/static/js/newpost.js"></script>
-        <script src="/static/js/categoriesselection.js"></script>
-        <script src="/static/js/lastposts.js"></script>
-
-        <script src="static/js/script.js"></script>
-
-</body>
-
-</html>
+    </div>
+`;
