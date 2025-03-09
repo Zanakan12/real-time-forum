@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </tr>
             <tr>
               <td colspan="3" style="text-align: center; padding-top: 2rem;">
-                <img src="/static/example.jpg" alt="Post Image" style="max-width: 500px; height: auto;" />
+                <img src="/static/assets/img/pexels-photo-1229042.jpeg" alt="Post Image" style="max-width: 500px; height: auto;" />
               </td>
             </tr>
           </table>
