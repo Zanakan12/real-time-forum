@@ -103,7 +103,6 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 
 	// Envoyer les messages non lus à la reconnexion
 	//fetchUnreadMessages(userName)
-	fmt.Println("here")
 	// Mettre à jour la liste des utilisateurs connectés
 	updateUserList()
 

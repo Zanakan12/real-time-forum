@@ -8,47 +8,66 @@ document.addEventListener("DOMContentLoaded", async () => {
   const openChatBtn = document.getElementById("open-chat");
 
   // Fonction pour ouvrir la liste
-  function open(showlist) {
-    if (showlist.classList.contains("hidden")) {
-      showlist.classList.remove("hidden"); // Ouvre la liste
-      if (showlist.classList.contains("all-users")) fetchUserData();
-      if (showlist.classList.contains("all-users")) fetchAllUsers();
+  function open(arg) {
+    const element = document.getElementById(arg);
+    if (element.classList.contains("hidden")) {
+      element.classList.remove("hidden"); // Ouvre la liste
+      if (element.classList.contains("all-users")) fetchUserData();
+      if (element.classList.contains("all-users")) fetchAllUsers();
+      if (element.classList.contains("chat")) fetchMessages(recipientSelect);
+
       console.log("Téléchargement des statuts des utilisateurs terminé !");
     } else {
-      showlist.classList.add("hidden"); // Ferme la liste
+      element.classList.add("hidden"); // Ferme la liste
     }
   }
 
   // Fonction pour fermer la liste
-  function close(showlist) {
-    showlist.classList.add("hidden");
+  function close(arg) {
+    const element = document.getElementById(arg);
+    element.classList.add("hidden");
   }
 
   // Gérer l'ouverture du chat
   openChatBtn.addEventListener("click", (event) => {
     event.stopPropagation(); // Empêche la propagation pour éviter la fermeture immédiate
     const element = document.getElementById("all-users");
-    open(element);
+    open("all-users");
     // Gérer la fermeture du chat en cliquant à l'extérieur
     document.addEventListener("click", (event) => {
       if (!element.contains(event.target) && event.target !== openChatBtn) {
-        close(element);
+        close("all-users");
       }
     });
   });
 
   document
     .getElementById("users-online")
-    .addEventListener("click", function (event) {
-      if (event.target.classList.contains("selectUser")) {
-        recipientSelect = event.target.id;
-        // Envoyer l'ID au backend Go
-        fetch(`/api/chat?recipient=${recipientSelect}`).catch((error) =>
-          console.error("Erreur lors de la récupération des messages :", error)
-        );
-      }
+    .addEventListener("click", handleUserSelection);
+
+  document
+    .getElementById("users-offline")
+    .addEventListener("click", handleUserSelection);
+
+  function handleUserSelection(event) {
+    if (event.target.classList.contains("selectUser")) {
+      recipientSelect = event.target.id;
+      let isOnline = event.target.classList.contains("online");
+
+      console.log(
+        `Utilisateur sélectionné : ${recipientSelect}, En ligne : ${isOnline}`
+      );
+
+      // Envoyer l'ID au backend Go
+      fetch(`/api/chat?recipient=${recipientSelect}`).catch((error) =>
+        console.error("Erreur lors de la récupération des messages :", error)
+      );
+
       fetchMessages(recipientSelect);
-    });
+      open("chat");
+      close("all-users");
+    }
+  }
 
   const messageInput = document.getElementById("message");
   document
@@ -113,8 +132,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       let messages = await response.json();
       messages = JSON.parse(messages);
 
-      if (!Array.isArray(messages))
+      if (!Array.isArray(messages)) {
         return console.warn("⚠️ Aucun message disponible.");
+      }
 
       messages.forEach((msg) => {
         let isSender = false;
@@ -159,30 +179,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       fetchConnectedUsers();
     };
 
-    socket.onmessage = (event) => {
-      try {
-        const msg = JSON.parse(event.data);
-        console.log("📩 Message reçu :", msg);
-
-        if (msg.type === "user_list") {
-          updateUserList(JSON.parse(msg.content));
-        } else if (msg.type === "message") {
-          appendMessage(
-            msg.username,
-            msg.recipient,
-            msg.content,
-            msg.created_at
-          );
-        }
-      } catch (error) {
-        console.error(
-          "❌ Erreur lors du parsing du message WebSocket :",
-          error,
-          event.data
-        );
-      }
-    };
-
     socket.onclose = () => console.warn("⚠️ Connexion WebSocket fermée.");
   }
 
@@ -190,7 +186,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   function sendMessage() {
     const recipient = recipientSelect;
     const message = messageInput.value.trim();
-    console.log(recipient, message);
     if (!recipient || !message) {
       alert("Veuillez entrer un destinataire et un message !");
       return;
@@ -238,7 +233,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Ajouter un message dans le chat
   function appendMessage(username, recipient, content, createdAt, isSender) {
-    console.log(recipientSelect);
     const messagesList = document.getElementById("messages");
     const li = document.createElement("li");
 

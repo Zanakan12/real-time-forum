@@ -222,6 +222,7 @@ textarea {
   color: white; /* Change la couleur du texte si besoin */
   position: relative; /* Permet de positionner le texte */
   text-align: center;
+  cursor: pointer;
 }
 
 .selectUser::after {
@@ -231,6 +232,7 @@ textarea {
   white-space: nowrap; /* Empêche le retour à la ligne */
   font-size: 16px;
   color: black; /* Couleur du texte */
+  cursor: pointer;
 }
 
 /*Profile*/
