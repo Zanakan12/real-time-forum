@@ -4,9 +4,38 @@ document.addEventListener("DOMContentLoaded", async () => {
   let recipientSelect;
   let onlineUser;
   let offlineUser;
-  // Sélection des éléments HTML
-  const sendMessageButton = document.getElementById("send-msg-button");
-  const messageInput = document.getElementById("message");
+
+  const openChatBtn = document.getElementById("open-chat");
+
+  // Fonction pour ouvrir la liste
+  function open(showlist) {
+    if (showlist.classList.contains("hidden")) {
+      showlist.classList.remove("hidden"); // Ouvre la liste
+      if (showlist.classList.contains("all-users")) fetchUserData();
+      if (showlist.classList.contains("all-users")) fetchAllUsers();
+      console.log("Téléchargement des statuts des utilisateurs terminé !");
+    } else {
+      showlist.classList.add("hidden"); // Ferme la liste
+    }
+  }
+
+  // Fonction pour fermer la liste
+  function close(showlist) {
+    showlist.classList.add("hidden");
+  }
+
+  // Gérer l'ouverture du chat
+  openChatBtn.addEventListener("click", (event) => {
+    event.stopPropagation(); // Empêche la propagation pour éviter la fermeture immédiate
+    const element = document.getElementById("all-users");
+    open(element);
+    // Gérer la fermeture du chat en cliquant à l'extérieur
+    document.addEventListener("click", (event) => {
+      if (!element.contains(event.target) && event.target !== openChatBtn) {
+        close(element);
+      }
+    });
+  });
 
   document
     .getElementById("users-online")
@@ -21,6 +50,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       fetchMessages(recipientSelect);
     });
 
+  const messageInput = document.getElementById("message");
   document
     .getElementById("message")
     .addEventListener("keydown", function (event) {
@@ -28,6 +58,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("send-msg-button").click();
       }
     });
+
+  document.getElementById("messages").addEventListener("scroll", function () {
+    if (this.scrollTop === 0) {
+      loadOlderMessages(); // Fonction pour récupérer les anciens messages
+    }
+  });
+
+  /*function loadOlderMessages() {
+    const messagesList = document.getElementById("messages");
+
+    for (let i = 0; i < 5; i++) {
+      // Simulation de chargement de 5 anciens messages
+      let oldMessage = document.createElement("li");
+      oldMessage.textContent = "Ancien message " + (i + 1);
+      oldMessage.classList.add("received");
+      messagesList.prepend(oldMessage);
+    }
+  }*/
+
+  const sendMessageButton = document.getElementById("send-msg-button");
   sendMessageButton.addEventListener("click", () => sendMessage());
 
   // Récupérer les infos utilisateur
@@ -153,7 +203,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         recipient: recipient,
         content: message,
       };
-     
+
       socket.send(JSON.stringify(msgObj));
       appendMessage(
         username,
@@ -203,6 +253,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       createdAt
     ).toLocaleTimeString()}</small>`;
     messagesList.appendChild(li);
+
+    // Vérifier si l'utilisateur est en bas avant de scroller
+    let isScrolledToBottom =
+      messagesList.scrollHeight - messagesList.clientHeight <=
+      messagesList.scrollTop + 1;
+
+    if (isScrolledToBottom) {
+      messagesList.scrollTop = messagesList.scrollHeight; // Scroll en bas seulement si l'utilisateur est déjà en bas
+    }
   }
 
   async function fetchAllUsers() {

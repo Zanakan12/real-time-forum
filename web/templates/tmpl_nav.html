@@ -1,65 +1,42 @@
 {{define "nav"}}
-<div class="navstick">
-  <table class="nav">
+<div id="navstick">
+  <table id="nav">
     <tr>
-      <td>
-        <a href="/"><img src="{{.Nav.LogoPath}}" width="100px" /></a>
+      <td id="logo-container">
+        <a href="/" id="logo-link">
+          <img id="logo" src="/static/assets/img/4.png" width="100px" />
+        </a>
       </td>
-      <td><h2>{{.Nav.SiteName}}</h2></td>
-      <td class="spacer"></td>
-      {{range .Nav.Links}} {{/* Display "Login" only if the user is a "traveler"
-      and the current page is not "login" */}} {{if eq .Label "Login"}} {{if eq
-      $.UserRole "traveler"}} {{if ne $.CurrentPage "login"}}
-      <td>
-        <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
+      <td id="site-name">
+        <h2>mood.</h2>
       </td>
-      {{end}} {{end}} {{/* Display "Register" only if the user is a "traveler"
-      and the current page is not "register" */}} {{else if eq .Label
-      "Register"}} {{if eq $.UserRole "traveler"}} {{if ne $.CurrentPage
-      "register"}}
-      <td>
-        <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
+      <td id="spacer"></td>
+      <td id="profile-button">
+        <button onclick="window.location.href='/profile'">Profile</button>
       </td>
-      {{end}} {{end}} {{/* Display "Logout" and "Profile" only if the user is
-      not a "traveler" */}} {{else if or (eq .Label "Logout") (eq .Label
-      "Profile")}} {{if ne $.UserRole "traveler"}} {{if or (ne $.CurrentPage
-      "profile") (ne .Label "Profile")}}
-      <td>
-        <button id="profile-image-nav" onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
+      <td id="notifications-button">
+        <button onclick="window.location.href='/notifications'">🔔</button>
       </td>
-      {{end}} {{end}} {{/* Display "Notifications" if the user is not a
-      "traveler" and the current page is not "notifications" */}} {{else if eq
-      .Label "Notifications"}} {{if ne $.UserRole "traveler"}} {{if ne
-      $.CurrentPage "notifications"}}
-      <td>
-        <button onclick="window.location.href='{{.Href}}'">
-          {{$.NotificationCount}} 🔔
-        </button>
+      <td id="login-button">
+        <button onclick="window.location.href='/login'">Login</button>
       </td>
-      {{end}} {{end}} {{/* Display the "Moderator Panel" link only if the user
-      is a "moderator" */}} {{else if eq .Label "Moderator Panel"}} {{if eq
-      $.UserRole "moderator"}} {{if ne $.CurrentPage "moderator"}}
-      <td>
-        <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
+      <td id="register-button">
+        <button onclick="window.location.href='/register'">Register</button>
       </td>
-      {{end}} {{end}} {{/* Display the "Admin Panel" link unless the current
-      page is "admin" */}} {{else if eq .Label "Admin Panel"}} {{if eq
-      $.UserRole "admin"}} {{if ne $.CurrentPage "admin"}}
-      <td>
-        <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
+      <td id="moderator-panel-button">
+        <button onclick="window.location.href='/mod'">Moderator Panel</button>
       </td>
-      {{end}} {{end}} {{/* Display the "Profile" link unless the current page is
-      "profile" */}} {{else if eq .Label "Profile"}} {{if ne $.CurrentPage
-      "profile"}}
-      <td>
-        <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
+      <td id="admin-panel-button">
+        <button onclick="window.location.href='/admin'">Admin Panel</button>
       </td>
-      {{end}} {{/* Display general links for all other users */}} {{else}}
-      <td>
-        <button onclick="window.location.href='{{.Href}}'">{{.Label}}</button>
+      <td id="chat-button">
+        <button id="open-chat">chat 💬</button>
       </td>
-      {{end}} {{end}} {{/* Bouton Message ajouté ici */}}
+      <td id="logout-button">
+        <button onclick="window.location.href='/logout'">Logout</button>
+      </td>
     </tr>
   </table>
 </div>
+
 {{end}}

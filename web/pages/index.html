@@ -24,7 +24,7 @@
     {{template "lastposts" .}}
     <div id="chat-messages" class="fold">
         <section>
-            <div id="all-users">
+            <div id="all-users" class="hidden">
                 <h3>Utilisateurs connectés :</h3>
                 <ul id="users-online"></ul>
                 <h3>Utilisateurs hors ligne :</h3>
@@ -32,16 +32,18 @@
             </div>
 
 
-            <div id="chat">
-                <div id="users-logo"></h3>
+            <div id="chat" class="hidden">
+                <div id="users-logo"> </div>
                 <ul id="messages"></ul>
 
-                <input id="message" type="text" placeholder="Écrivez un message">
-                <input id="send-msg-button" type="button" value="S"></button>
+                <div id="chat-input-container">
+                    <input id="message" type="text" placeholder="Écrivez un message">
+                    <input id="send-msg-button" type="button" value="S">
+                </div>
             </div>
         </section>
-    </div>
-    <script src="static/js/script.js"></script>
+
+        <script src="static/js/script.js"></script>
 </body>
 
 </html>

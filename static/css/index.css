@@ -135,48 +135,80 @@ textarea {
 #chat {
   position: fixed;
   right: 1%;
-  top: 65%;
-  height: 30%;
-  width: 12%;
-  margin: auto;
+  bottom: 0%;
+  width: 250px;
+  height: 350px;
   background: rgb(119, 116, 116);
-  padding: 20px;
+  padding: 10px;
   border-radius: 10px;
   box-shadow: 0px 0px 10px gray;
+  border: 2px solid black;
+  display: flex;
+  flex-direction: column; /* Organisation verticale */
 }
 
+/* Liste des messages */
 #messages {
+  flex: 1; /* Remplit tout l’espace disponible */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Affiche les messages normalement du haut vers le bas */
+  overflow-y: auto; /* Active le scroll */
   list-style: none;
-  padding: 0;
-  max-height: 300px;
-  overflow-y: auto;
+  padding: 5px;
+  margin: 0;
+  max-height: 300px; /* Hauteur max pour le scroll */
+  scrollbar-width: thin; /* Minimise la barre de scroll */
+  scrollbar-color: #aaa transparent; /* Style personnalisé */
 }
 
-.message {
-  padding: 10px;
-  margin: 5px;
+/* Messages individuels */
+#messages li {
+  padding: 8px 12px;
   border-radius: 10px;
+  max-width: 90%;
+  word-wrap: break-word;
 }
 
+/* Messages envoyés */
 .sent {
   background-color: #0ac000;
-  width: fit-content;
+  color: white;
   align-self: flex-end;
   text-align: right;
-  color: #0c0c0c;
-  margin-left: auto
+  margin-left: auto;
 }
 
+/* Messages reçus */
 .received {
   background-color: #0268c8;
+  color: white;
   align-self: flex-start;
   text-align: left;
-  color: #0c0c0c;
-  width: fit-content;
 }
 
-ul {
-  padding: 0; /* Supprime le padding par défaut */
+/* Conteneur de l'input et du bouton */
+#chat-input-container {
+  position: fixed;
+  bottom: 1%;
+  display: flex;
+}
+
+/* Input */
+#message {
+  flex: 1;
+  border: 1px solid rgb(29, 27, 27);
+  border-radius: 5px;
+}
+
+/* Bouton Send */
+#send-msg-button {
+  width: 35px;
+  height: 30px;
+  cursor: pointer;
+  border-radius: 5px;
+  background-color: white;
+  border: 1px solid gray;
 }
 
 .selectUser {
@@ -223,7 +255,7 @@ ul {
 /*navbar*/
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 #all-users {
