@@ -1,7 +1,7 @@
-let username = "rafta"
+let username = "rafta";
 
 document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("home").innerHTML = `
+  document.getElementById("home").innerHTML = `
       <h4> ${username}, tell us a story...</h4>
       
       <div id="newpost-container"></div>
@@ -17,12 +17,17 @@ document.addEventListener("DOMContentLoaded", function () {
               </div>
 
               <div id="chat" class="hidden">
-                  <div id="users-logo"> </div>
+                  <div id="header-chat">
+                    <div id="photo-chat"></div>
+                    <div id="name-chat"></div>   
+                    <div id="reduce-chat">_</div>
+                    <div id="close-chat">x</div>
+                  </div>
                   <ul id="messages"></ul>
 
                   <div id="chat-input-container">
                       <input id="message" type="text" placeholder="Écrivez un message">
-                      <input id="send-msg-button" type="button" value="S">
+                      <input id="send-msg-button" type="button">
                   </div>
               </div>
           </section>

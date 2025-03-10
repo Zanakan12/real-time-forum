@@ -136,12 +136,11 @@ textarea {
   position: fixed;
   right: 1%;
   bottom: 0%;
-  width: 250px;
-  height: 350px;
-  background: rgb(119, 116, 116);
+  width: 450px;
+  height: 550px;
+  background: rgb(71, 70, 70);
   padding: 10px;
-  border-radius: 10px;
-  box-shadow: 0px 0px 10px gray;
+  border-radius: 10px 10px 0px 0px;
   border: 2px solid black;
   display: flex;
   flex-direction: column; /* Organisation verticale */
@@ -157,7 +156,9 @@ textarea {
   list-style: none;
   padding: 5px;
   margin: 0;
-  max-height: 300px; /* Hauteur max pour le scroll */
+  border-bottom: 2px solid rgb(62, 61, 61);
+  border-top: 2px solid rgb(62, 61, 61);
+  max-height: 400px; /* Hauteur max pour le scroll */
   scrollbar-width: thin; /* Minimise la barre de scroll */
   scrollbar-color: #aaa transparent; /* Style personnalisé */
 }
@@ -166,8 +167,9 @@ textarea {
 #messages li {
   padding: 8px 12px;
   border-radius: 10px;
-  max-width: 90%;
+  max-width: 45%;
   word-wrap: break-word;
+  margin-top: 1%;
 }
 
 /* Messages envoyés */
@@ -177,6 +179,7 @@ textarea {
   align-self: flex-end;
   text-align: right;
   margin-left: auto;
+  gap: 10px;
 }
 
 /* Messages reçus */
@@ -192,6 +195,8 @@ textarea {
   position: fixed;
   bottom: 1%;
   display: flex;
+  align-self: center;
+  width: 400px;
 }
 
 /* Input */
@@ -204,11 +209,16 @@ textarea {
 /* Bouton Send */
 #send-msg-button {
   width: 35px;
-  height: 30px;
+  height: 100%;
   cursor: pointer;
   border-radius: 5px;
-  background-color: white;
+  background-image: url("/static/assets/img/4.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
   border: 1px solid gray;
+  rotate: 90deg;
+  margin-left: 10px;
 }
 
 .selectUser {
@@ -261,6 +271,7 @@ textarea {
 }
 
 #all-users {
+  z-index: 1;
   position: fixed;
   right: 1%;
   top: 11%;
@@ -271,4 +282,79 @@ textarea {
   padding: 20px;
   border-radius: 5px 10px 10px 10px;
   box-shadow: 0px 0px 10px gray;
+}
+
+/*dot annimation*/
+@keyframes blink {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.dot {
+  animation: blink 1.5s infinite;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+#header-chat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px;
+}
+
+#photo-chat {
+  width: 60px;
+  height: 60px;
+  background-image: url("/static/assets/img/4.");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 50%;
+}
+
+#name-chat {
+  flex-grow: 1;
+  padding: 5px;
+}
+
+#reduce-chat,
+#close-chat {
+  cursor: pointer;
+  padding: 5px 10px;
+  background-color: rgb(92, 89, 89);
+  color: white;
+  border-radius: 5px;
+}
+
+#bubble-box {
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-image: url("/static/assets/img/rafta74/profileImage.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  right: 1%;
+  bottom: 2%;
+  cursor: pointer;
+}
+
+#bubble-box::after {
+  content: "";
 }

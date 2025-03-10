@@ -14,7 +14,7 @@ func createMessagesTable(db *sql.DB) {
 	recipient TEXT NOT NULL,
     content TEXT NOT NULL,
 	read BOOLEAN NOT NULL DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TEXT NOT NULL
 );
 
 `
@@ -51,11 +51,11 @@ func GetMessages(username, recipient string) ([]WebSocketMessage, error) {
 }
 
 // Stocke un message en base de données
-func SaveMessage(username, recipient, content string, read bool) error {
+func SaveMessage(username, recipient, content, created_at string, read bool) error {
 	db := SetupDatabase()
 	defer db.Close()
 	_, err := db.Exec(`INSERT INTO messages (username, recipient, content, read, created_at) 
-	                   VALUES (?, ?, ?, ?, datetime('now'))`, username, recipient, content, read)
+	                   VALUES (?, ?, ?, ?, ?)`, username, recipient, content, read, created_at)
 	return err
 }
 

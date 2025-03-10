@@ -121,6 +121,7 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
+		log.Println("message type", receivedMessage.Type)
 		log.Printf("Message de %s → %s : %s\n", receivedMessage.Username, receivedMessage.Recipient, receivedMessage.Content)
 
 		// Sauvegarde et envoi du message
@@ -152,11 +153,16 @@ func sendMessageToUser(toUsername string, message WebSocketMessage) {
 			mutex.Unlock()
 		}
 		message.Read = true
-		db.SaveMessage(message.Username, message.Recipient, message.Content, message.Read)
+		if message.Type != "typing" {
+			db.SaveMessage(message.Username, message.Recipient, message.Content, message.CreatedAt, message.Read)
+		}
+
 	} else {
 		// Utilisateur hors ligne → Stockage en base
 		message.Read = false
-		db.SaveMessage(message.Username, message.Recipient, message.Content, message.Read)
+		if message.Type != "typing" {
+			db.SaveMessage(message.Username, message.Recipient, message.Content, message.CreatedAt, message.Read)
+		}
 		log.Printf("Utilisateur %s hors ligne, message stocké.", toUsername)
 	}
 }
@@ -197,8 +203,4 @@ func GetUserListJSON() string {
 	}
 	usersJSON, _ := json.Marshal(usernames)
 	return string(usersJSON)
-}
-
-func ChatHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "web/pages/chat.html")
 }

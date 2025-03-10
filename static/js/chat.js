@@ -2,23 +2,39 @@ document.addEventListener("DOMContentLoaded", async () => {
   let socket;
   let username;
   let recipientSelect;
-  let onlineUser;
-  let offlineUser;
 
-  const openChatBtn = document.getElementById("open-chat");
+  const reduceBtn = document.getElementById("reduce-chat");
+  const closeBtn = document.getElementById("close-chat");
+
+  reduceBtn.addEventListener("click", () => {
+    close("chat");
+    const chat = document.getElementById("chat-messages");
+    const bubbleBox = document.createElement("div");
+    bubbleBox.id = "bubble-box";
+    bubbleBox.classList.add("selectUser");
+    chat.appendChild(bubbleBox);
+    document.getElementById("bubble-box").addEventListener("click", (event) => {
+      handleUserSelection(event);
+      bubbleBox.remove();
+    });
+  });
+
+  closeBtn.addEventListener("click", () => {
+    close("chat");
+  });
 
   // Fonction pour ouvrir la liste
   function open(arg) {
     const element = document.getElementById(arg);
     if (element.classList.contains("hidden")) {
       element.classList.remove("hidden"); // Ouvre la liste
-      if (element.classList.contains("all-users")) fetchUserData();
-      if (element.classList.contains("all-users")) fetchAllUsers();
+      fetchConnectedUsers();
+      if (element.classList.contains("all-users")) updateUserList();
       if (element.classList.contains("chat")) fetchMessages(recipientSelect);
 
       console.log("Téléchargement des statuts des utilisateurs terminé !");
     } else {
-      element.classList.add("hidden"); // Ferme la liste
+      if (arg === "all-users") element.classList.add("hidden"); // Ferme la liste
     }
   }
 
@@ -28,6 +44,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     element.classList.add("hidden");
   }
 
+  const openChatBtn = document.getElementById("open-chat");
   // Gérer l'ouverture du chat
   openChatBtn.addEventListener("click", (event) => {
     event.stopPropagation(); // Empêche la propagation pour éviter la fermeture immédiate
@@ -51,7 +68,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function handleUserSelection(event) {
     if (event.target.classList.contains("selectUser")) {
-      recipientSelect = event.target.id;
+      if (event.target.id !== "bubble-box") recipientSelect = event.target.id;
       let isOnline = event.target.classList.contains("online");
 
       console.log(
@@ -62,11 +79,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       fetch(`/api/chat?recipient=${recipientSelect}`).catch((error) =>
         console.error("Erreur lors de la récupération des messages :", error)
       );
-
-      fetchMessages(recipientSelect);
+      const messagesList = document.getElementById("messages");
+      messagesList.innerHTML = "";
       open("chat");
+      manageHeader(recipientSelect);
+      fetchMessages(recipientSelect);
       close("all-users");
     }
+  }
+
+  function manageHeader(recipient) {
+    const recipientLabel = document.getElementById("name-chat");
+    recipientLabel.textContent = `${recipient}`;
+
+    const photochat = document.getElementById("photo-chat");
+    photochat.style.backgroundImage =
+      "url('/static/assets/img/rafta74/profileImage.jpg')";
   }
 
   const messageInput = document.getElementById("message");
@@ -143,6 +171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           isSender = true;
         }
         appendMessage(
+          msg.type,
           msg.username,
           msg.recipient,
           msg.content,
@@ -171,6 +200,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  // input texte detection
+  let typingTimer;
+  const TYPING_DELAY = 100; // Délai avant d'envoyer "typing"
+
+  messageInput.addEventListener("input", () => {
+    clearTimeout(typingTimer);
+
+    typingTimer = setTimeout(() => {
+      messageDetectInput();
+    }, TYPING_DELAY);
+  });
+
+  function messageDetectInput() {
+    if (socket.readyState === WebSocket.OPEN) {
+      const typingObj = {
+        type: "typing",
+        username: username,
+        recipient: recipientSelect,
+      };
+
+      socket.send(JSON.stringify(typingObj));
+      console.log("Typing envoyé :", typingObj);
+    } else {
+      console.warn("WebSocket non connecté !");
+    }
+  }
+
   // Connexion WebSocket
   function connectWebSocket() {
     socket = new WebSocket(`wss://localhost:8080/ws?username=${username}`);
@@ -180,6 +236,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       fetchConnectedUsers();
     };
 
+    socket.addEventListener("message", (event) => {
+      try {
+        const message = JSON.parse(event.data); // Convertir en objet JavaScript
+        appendMessage(
+          message.type,
+          message.username,
+          message.recipient,
+          message.content,
+          message.created_at,
+          false
+        );
+        // Traiter le message comme nécessaire
+      } catch (error) {
+        console.error("Erreur lors de la réception du message :", error);
+      }
+    });
     socket.onclose = () => console.warn("⚠️ Connexion WebSocket fermée.");
   }
 
@@ -187,6 +259,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   function sendMessage() {
     const recipient = recipientSelect;
     const message = messageInput.value.trim();
+    const date = new Date();
+    const hour = `${String(date.getHours()).padStart(2, "0")}:${String(
+      date.getMinutes()
+    ).padStart(2, "0")}`;
+
     if (!recipient || !message) {
       alert("Veuillez entrer un destinataire et un message !");
       return;
@@ -198,17 +275,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         username: username,
         recipient: recipient,
         content: message,
+        created_at: hour,
       };
-
+      console.log(socket);
       socket.send(JSON.stringify(msgObj));
-      appendMessage(
-        username,
-        recipient,
-        message,
-        new Date().toISOString(),
-        true
-      ); // Affichage immédiat
-      console.log("message envoyé");
+      appendMessage("", username, recipient, message, hour, true); // Affichage immédiat
       messageInput.value = "";
     } else {
       alert("WebSocket non connecté !");
@@ -233,21 +304,57 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Ajouter un message dans le chat
-  function appendMessage(username, recipient, content, createdAt, isSender) {
+  function appendMessage(
+    type,
+    username,
+    recipient,
+    content,
+    createdAt,
+    isSender
+  ) {
     const messagesList = document.getElementById("messages");
+
     const li = document.createElement("li");
 
     li.classList.add("message");
-    if (isSender) {
-      li.classList.add("sent");
-    } else {
-      li.classList.add("received");
+
+    if (li.classList.contains("message")) {
+      if (isSender) {
+        li.classList.add("sent");
+      } else {
+        li.classList.add("received");
+      }
     }
 
-    li.innerHTML = `${content} <small>${new Date(
-      createdAt
-    ).toLocaleTimeString()}</small>`;
-    messagesList.appendChild(li);
+    let typingTimeout; // Variable pour stocker le timer
+
+    if (type === "typing") {
+      const checkTyping = document.getElementById("typing");
+
+      if (!checkTyping) {
+        // Si l'indicateur "typing" n'existe pas, on le crée
+        li.id = "typing";
+        li.innerHTML = `
+          <span class="dot">.</span>
+          <span class="dot">.</span>
+          <span class="dot">.</span>
+        `;
+        messagesList.appendChild(li);
+        scrollToBottom("messages");
+      }
+
+      // Réinitialiser le timer pour éviter une suppression prématurée
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        const typingElement = document.getElementById("typing");
+        if (typingElement) typingElement.remove();
+      }, 2000); // Disparaît après 2 secondes si aucune nouvelle frappe
+    } else {
+      // Cas normal : afficher le message
+      li.innerHTML = `${content} <small>${createdAt}</small>`;
+      messagesList.appendChild(li);
+      scrollToBottom("messages");
+    }
 
     // Vérifier si l'utilisateur est en bas avant de scroller
     let isScrolledToBottom =
@@ -257,6 +364,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (isScrolledToBottom) {
       messagesList.scrollTop = messagesList.scrollHeight; // Scroll en bas seulement si l'utilisateur est déjà en bas
     }
+  }
+
+  function scrollToBottom(arg) {
+    const chatBox = document.getElementById(arg);
+    chatBox.scrollTo({
+      top: chatBox.scrollHeight,
+      behavior: "smooth",
+    });
   }
 
   async function fetchAllUsers() {
