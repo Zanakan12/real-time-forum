@@ -10,9 +10,9 @@ document.addEventListener("DOMContentLoaded", function () {
       <div id="chat-messages" class="fold">
           <section>
               <div id="all-users" class="hidden">
-                  <h3>Utilisateurs connectés :</h3>
+                  <h3>en ligne:</h3>
                   <ul id="users-online" name="user"></ul>
-                  <h3>Utilisateurs hors ligne :</h3>
+                  <h3>hors ligne :</h3>
                   <ul id="users-offline"></ul>
               </div>
 

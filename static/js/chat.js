@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   let socket;
   let username;
   let recipientSelect;
+  let onlineUser;
 
   const reduceBtn = document.getElementById("reduce-chat");
   const closeBtn = document.getElementById("close-chat");
@@ -28,6 +29,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const element = document.getElementById(arg);
     if (element.classList.contains("hidden")) {
       element.classList.remove("hidden"); // Ouvre la liste
+      fetchAllUsers();
       fetchConnectedUsers();
       if (element.classList.contains("all-users")) updateUserList();
       if (element.classList.contains("chat")) fetchMessages(recipientSelect);
@@ -191,7 +193,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         "https://localhost:8080/api/users-connected"
       );
       const users = await response.json();
-      updateUserList(JSON.parse(users));
+      onlineUser = await JSON.parse(users);
+      updateUserList(await JSON.parse(users));
     } catch (error) {
       console.error(
         "❌ Erreur lors de la récupération des utilisateurs connectés :",
@@ -293,13 +296,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     usersList.innerHTML = "";
 
     users.forEach((user) => {
-      if (user !== username) {
-        const li = document.createElement("li");
-        li.textContent = user[0];
-        li.classList.add("selectUser", "online");
-        li.id = `${user}`;
-        usersList.appendChild(li);
-      }
+      const li = document.createElement("li");
+      li.classList.add("selectUser", "online");
+      li.id = `${user}`;
+      if (user === username) li.style.setProperty("--before-content", '"Vous"');
+      else li.style.setProperty("--before-content", `"${user}"`);
+      usersList.appendChild(li);
     });
   }
 
@@ -387,12 +389,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       );
       // Affichage sur la page HTML (si nécessaire)
       const userList = document.getElementById("users-offline");
+      userList.innerHTML = "";
       filtredUser.forEach((user) => {
-        if (user !== username) {
+        if (user.Username !== username) {
           const li = document.createElement("li");
-          li.textContent = user.Username[0].toUpperCase();
           li.classList.add("selectUser", "offline", "short");
           li.id = `${user.Username}`;
+          li.style.setProperty("--before-content", `"${user.Username}"`);
           userList.appendChild(li);
         }
       });
@@ -403,7 +406,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   console.log("🚀 - Page chargée !");
   await fetchUserData();
-  await fetchAllUsers();
 });
 
 /*

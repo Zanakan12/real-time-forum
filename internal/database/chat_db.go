@@ -94,10 +94,11 @@ func MarkMessageAsRead(msg WebSocketMessage) error {
 	return err
 }
 
-func GetAllUser() ([]User, error) {
+func GetAllUser(aux []string) ([]User, error) {
 	db := SetupDatabase()
 	defer db.Close()
-	// Requête SQL pour récupérer tous les users
+
+	// Requête SQL pour récupérer tous les utilisateurs
 	query := "SELECT username FROM users"
 
 	// Exécuter la requête
@@ -106,25 +107,36 @@ func GetAllUser() ([]User, error) {
 		return nil, fmt.Errorf("erreur lors de l'exécution de la requête : %v", err)
 	}
 	defer rows.Close()
-	// Slice pour stocker les users
+
+	// Stocker les utilisateurs
 	var users []User
 
-	// Itérer sur les lignes retournées par la requête
-	for rows.Next() {
-		var user User
-		err := rows.Scan(
-			&user.Username,
-		)
-
-		if err != nil {
-			return nil, fmt.Errorf("erreur lors de l'analyse des données : %v", err)
-		}
-		users = append(users, user)
+	// Convertir aux en map pour une recherche rapide
+	auxMap := make(map[string]bool)
+	for _, name := range aux {
+		auxMap[name] = true
 	}
 
-	// Vérifier les erreurs lors de l'itération
+	// Parcourir les résultats de la requête SQL
+	for rows.Next() {
+		var user User
+		if err := rows.Scan(&user.Username); err != nil {
+			return nil, fmt.Errorf("erreur lors de l'analyse des données : %v", err)
+		}
+
+		decryptedUser, _ := DecryptData(user.Username)
+
+		// Ajouter l'utilisateur SEULEMENT s'il n'est pas dans auxMap
+
+		if !auxMap[decryptedUser] {
+			users = append(users, user)
+		}
+	}
+
+	// Vérifier les erreurs d'itération
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("erreur pendant l'itération : %v", err)
 	}
+
 	return users, nil
 }

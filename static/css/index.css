@@ -9,6 +9,7 @@ body {
   justify-content: center;
   flex-wrap: wrap;
 }
+
 /*
 header {
     width: 80vw;
@@ -222,26 +223,31 @@ textarea {
 }
 
 .selectUser {
-  width: 50px;
-  height: 50px;
-  background-color: #0268c8;
+  width: 60px;
+  height: 60px;
+  background-image: url("/static/assets/img/rafta74/profileImage.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white; /* Change la couleur du texte si besoin */
-  position: relative; /* Permet de positionner le texte */
+  position: relative;
   text-align: center;
   cursor: pointer;
 }
 
 .selectUser::after {
-  content: attr(id); /* Utilise l'ID comme texte */
+  content: var(--before-content);
+  margin-left: 10px;
   position: absolute;
-  left: 60px; /* Décale le texte vers la droite */
-  white-space: nowrap; /* Empêche le retour à la ligne */
+  font-size: 200 !important;
+  font-weight: 600;
+  left: 60px;
+  white-space: nowrap;
   font-size: 16px;
-  color: black; /* Couleur du texte */
+  color: rgb(255, 255, 255);
   cursor: pointer;
 }
 
@@ -275,13 +281,17 @@ textarea {
   position: fixed;
   right: 1%;
   top: 11%;
-
+  background: rgb(71, 70, 70);
   width: 20%;
   margin: auto;
-  background: rgb(119, 116, 116);
   padding: 20px;
   border-radius: 5px 10px 10px 10px;
   box-shadow: 0px 0px 10px gray;
+}
+
+#all-users h3 {
+  font-size: 15px !important;
+  color: #616261;
 }
 
 /*dot annimation*/
@@ -357,4 +367,30 @@ textarea {
 
 #bubble-box::after {
   content: "";
+}
+
+.online::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background-color: rgb(4, 216, 29);
+  border: 1px solid white;
+  border-radius: 50%;
+  position: absolute;
+  top: 80%;
+  left: 80%;
+  transform: translateX(-50%);
+}
+
+.offline::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background-color: rgb(91, 86, 86);
+  border: 1px solid white;
+  border-radius: 50%;
+  position: absolute;
+  top: 80%;
+  left: 80%;
+  transform: translateX(-50%);
 }

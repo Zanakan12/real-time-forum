@@ -66,7 +66,11 @@ func GetChatHistory(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetAllUsersHandler(w http.ResponseWriter, r *http.Request) {
-	users, err := db.GetAllUser()
+	var aux []string
+	connectedUser := GetUserListJSON()
+	err := json.Unmarshal([]byte(connectedUser), &aux)
+
+	users, err := db.GetAllUser(aux)
 	if err != nil {
 		http.Error(w, "Erreur lors de la récupération des utilisateurs", http.StatusInternalServerError)
 		return
